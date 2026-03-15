@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlixVision Web</title>
+    <!-- Modern Typography -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-play-circle gradient-text"></i>
+            <span class="gradient-text">FlixVision</span>
+        </div>
+        <nav class="nav-links">
+            <button class="nav-btn active" data-tab="home">Home</button>
+            <button class="nav-btn" data-tab="movies">Movies</button>
+            <button class="nav-btn" data-tab="tv">TV Shows</button>
+            <button class="nav-btn" data-tab="anime">Anime</button>
+            <button class="nav-btn" data-tab="theaters">In Theaters</button>
+        </nav>
+        <div class="search-container">
+            <i class="fa-solid fa-search search-icon"></i>
+            <input type="text" id="search-input" placeholder="Search movies, shows...">
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 id="hero-title" class="skeleton-text">Loading...</h1>
+            <p id="hero-desc" class="skeleton-text">Please wait while we fetch the latest trending content.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" id="hero-play" disabled>
+                    <i class="fa-solid fa-play"></i> Watch Now
+                </button>
+                <button class="btn btn-secondary" id="hero-info" disabled>
+                    <i class="fa-solid fa-info-circle"></i> More Info
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="content-container">
+
+        <!-- Welcome Title and Filters -->
+        <div class="section-header">
+            <h2 id="section-title">Trending Now</h2>
+            <div class="filters" id="content-filters" style="display: none;">
+                <select id="filter-genre">
+                    <option value="">All Genres</option>
+                </select>
+                <select id="filter-year">
+                    <option value="">All Years</option>
+                </select>
+                <select id="filter-sort">
+                    <option value="popularity.desc">Most Popular</option>
+                    <option value="vote_average.desc">Highest Rated</option>
+                    <option value="primary_release_date.desc">Newest</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Media Grid -->
+        <div class="media-grid" id="media-grid">
+            <!-- Items injected by JS -->
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loader-container" id="infinite-loader" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+
+    </main>
+
+    <!-- Video Player Modal -->
+    <div class="player-modal" id="player-modal">
+        <div class="player-modal-content">
+            <div class="player-header">
+                <h3 id="player-title">Now Playing</h3>
+
+                <div class="server-selector" id="server-selector-container">
+                    <label for="server-dropdown">Source:</label>
+                    <select id="server-dropdown">
+                        <option value="vidsrc">VidSrc</option>
+                        <option value="smashy">SmashyStream</option>
+                        <option value="autoembed">AutoEmbed</option>
+                    </select>
+                </div>
+
+                <!-- Ad Blocker Toggle -->
+                <div class="adblock-toggle-container">
+                    <label for="adblock-toggle"
+                        title="Disabling may allow popup ads, but fixes players that block sandboxing">Ad
+                        Blocker:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="adblock-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <!-- TV season/episode selector (Shows only if TV) -->
+                <div class="tv-selector" id="tv-selector" style="display: none;">
+                    <label for="season-dropdown">S:</label>
+                    <select id="season-dropdown"></select>
+
+                    <label for="episode-dropdown">E:</label>
+                    <select id="episode-dropdown"></select>
+                </div>
+
+                <button class="close-btn" id="close-player">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="player-wrapper">
+                <!-- Sandbox prevents popups, redirects, and malicious behavior when clicking the player -->
+                <iframe id="video-iframe" src="" frameborder="0"
+                    sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="details-modal" id="details-modal">
+        <div class="details-backdrop" id="details-backdrop"></div>
+        <div class="details-content">
+            <div class="details-scrollable">
+                <div class="details-hero" id="details-hero">
+                    <button class="close-details" id="close-details">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <div class="details-info">
+                    <h2 id="details-title">Title</h2>
+                    <div class="details-meta" id="details-meta"></div>
+                    <p class="details-overview" id="details-overview">Overview</p>
+                    <button class="btn btn-primary" id="details-play-btn">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
