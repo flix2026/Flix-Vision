@@ -181,9 +181,14 @@ async function switchTab(tabId) {
     // Show/hide filters (only for discoverable types)
     if (['movies', 'tv', 'anime'].includes(tabId)) {
         UI.contentFilters.style.display = 'flex';
+        UI.filterGenre.style.display = '';
+        UI.filterYear.style.display = '';
         await populateGenres(tabId);
     } else {
         UI.contentFilters.style.display = 'none';
+        // On mobile the CSS forces it visible — hide genre/year since they don't apply
+        UI.filterGenre.style.display = 'none';
+        UI.filterYear.style.display = 'none';
     }
 
     // Update active class
