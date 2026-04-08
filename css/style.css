@@ -841,4 +841,9 @@ select:focus {
     .mobile-only {
         display: block !important;
     }
+
+    /* Always show filters on mobile regardless of tab */
+    #content-filters {
+        display: flex !important;
+    }
 }
