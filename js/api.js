@@ -100,6 +100,14 @@ async function getTVSeasonDetails(tvId, seasonNumber) {
 }
 
 /**
+ * Fetch trailers/videos for a movie or TV show
+ */
+async function getVideos(type, id) {
+    if (type === 'anime') type = 'tv';
+    return await fetchTMDB(`/${type}/${id}/videos`);
+}
+
+/**
  * Search content
  */
 async function searchContent(query, page = 1) {

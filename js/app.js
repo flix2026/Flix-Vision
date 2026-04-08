@@ -15,6 +15,7 @@ const UI = {
     filterGenre: document.getElementById('filter-genre'),
     filterYear: document.getElementById('filter-year'),
     filterSort: document.getElementById('filter-sort'),
+    filterColumns: document.getElementById('filter-columns'),
 
     // Details Modal
     detailsModal: document.getElementById('details-modal'),
@@ -23,8 +24,19 @@ const UI = {
     detailsMeta: document.getElementById('details-meta'),
     detailsOverview: document.getElementById('details-overview'),
     detailsPlayBtn: document.getElementById('details-play-btn'),
+    detailsTrailerBtn: document.getElementById('details-trailer-btn'),
     closeDetails: document.getElementById('close-details'),
-    detailsBackdrop: document.getElementById('details-backdrop')
+    detailsBackdrop: document.getElementById('details-backdrop'),
+
+    // Trailer Modal
+    trailerModal: document.getElementById('trailer-modal'),
+    trailerIframe: document.getElementById('trailer-iframe'),
+    closeTrailer: document.getElementById('close-trailer'),
+    trailerBackdrop: document.getElementById('trailer-backdrop'),
+
+    // Mobile nav
+    hamburger: document.getElementById('hamburger-btn'),
+    navLinks: document.getElementById('nav-links'),
 };
 
 let currentTab = 'home';
@@ -40,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     populateYears();
     switchTab('home');
     setupEventListeners();
+    applyMobileColumns();
 });
 
 function populateYears() {
@@ -56,12 +69,18 @@ function populateYears() {
  * Event Listeners
  */
 function setupEventListeners() {
-    // Tabs
+    // Hamburger (mobile nav accordion)
+    UI.hamburger.addEventListener('click', () => {
+        UI.navLinks.classList.toggle('open');
+    });
+
+    // Close mobile nav when a tab is clicked
     UI.tabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
+            UI.navLinks.classList.remove('open');
             const targetTab = e.target.dataset.tab;
             if (currentTab !== targetTab || UI.searchInput.value.trim() !== '') {
-                UI.searchInput.value = ''; // Clear search on tab switch
+                UI.searchInput.value = '';
                 switchTab(targetTab);
             }
         });
@@ -78,7 +97,7 @@ function setupEventListeners() {
                 searchAndRenderType(query);
             }, 500);
         } else if (query.length === 0) {
-            switchTab(currentTab); // Restore current tab
+            switchTab(currentTab);
         }
     });
 
@@ -86,11 +105,14 @@ function setupEventListeners() {
     UI.closeDetails.addEventListener('click', closeDetailsModal);
     UI.detailsBackdrop.addEventListener('click', closeDetailsModal);
 
+    // Trailer modal
+    UI.closeTrailer.addEventListener('click', closeTrailerModal);
+    UI.trailerBackdrop.addEventListener('click', closeTrailerModal);
+
     // Hero buttons
     UI.heroPlay.addEventListener('click', () => {
         if (currentHeroItem) openDetails(currentHeroItem);
     });
-
     UI.heroInfo.addEventListener('click', () => {
         if (currentHeroItem) openDetails(currentHeroItem);
     });
@@ -100,9 +122,15 @@ function setupEventListeners() {
         if (!currentDetailItem) return;
         const type = currentDetailItem.media_type || (currentTab === 'anime' ? 'anime' : (currentDetailItem.name ? 'tv' : 'movie'));
         const seasonCount = currentDetailItem.number_of_seasons || 1;
-
         closeDetailsModal();
         playMovie(currentDetailItem.id, type, currentDetailItem.title || currentDetailItem.name, seasonCount);
+    });
+
+    // Trailer Button
+    UI.detailsTrailerBtn.addEventListener('click', () => {
+        if (currentDetailItem && currentDetailItem._trailerKey) {
+            openTrailerModal(currentDetailItem._trailerKey);
+        }
     });
 
     // Infinite Scroll
@@ -127,6 +155,9 @@ function setupEventListeners() {
             loadContent(true);
         });
     });
+
+    // Mobile columns picker
+    UI.filterColumns.addEventListener('change', applyMobileColumns);
 }
 
 /**
@@ -193,9 +224,18 @@ async function loadContent(isNewTab = false) {
 
         if (isFiltering && ['movies', 'tv', 'anime'].includes(currentTab)) {
             const type = (currentTab === 'tv' || currentTab === 'anime') ? 'tv' : 'movie';
+
+            // Fix: map the unified sort key to the correct TMDB field per media type
+            let sortBy = fSort;
+            if (sortBy === 'release_date.desc' || sortBy === 'release_date.asc') {
+                sortBy = type === 'movie'
+                    ? sortBy.replace('release_date', 'primary_release_date')
+                    : sortBy.replace('release_date', 'first_air_date');
+            }
+
             const params = {
                 page: currentPage,
-                sort_by: fSort,
+                sort_by: sortBy,
             };
 
             if (fGenre) {
@@ -287,7 +327,7 @@ function updateHero(item) {
 function renderGrid(items, startIndex = 0) {
     for (let i = startIndex; i < items.length; i++) {
         const item = items[i];
-        if (!item.poster_path && !item.backdrop_path) continue; // Skip items missing both artwork types
+        if (!item.poster_path && !item.backdrop_path) continue;
 
         const title = item.title || item.name;
         const poster = item.poster_path ? `${IMG_BASE_URL}${item.poster_path}` : FALLBACK_IMG;
@@ -298,6 +338,7 @@ function renderGrid(items, startIndex = 0) {
         card.className = 'media-card';
         card.innerHTML = `
             <img src="${poster}" alt="${title}" loading="lazy">
+            <div class="card-rating"><i class="fa-solid fa-star"></i> ${rating}</div>
             <div class="card-overlay">
                 <div class="card-title">${title}</div>
                 <div class="card-meta">
@@ -316,15 +357,23 @@ function renderGrid(items, startIndex = 0) {
  * Open Details Modal
  */
 async function openDetails(item) {
-    const type = item.media_type || (item.title ? 'movie' : 'tv'); // fallback detection
+    const type = item.media_type || (item.title ? 'movie' : 'tv');
 
-    // Fetch full details
-    const fullDetails = await fetchDetails(type, item.id);
+    const [fullDetails, videosData] = await Promise.all([
+        fetchDetails(type, item.id),
+        getVideos(type, item.id)
+    ]);
     if (!fullDetails) return;
 
+    // Find best trailer from videos
+    const trailer = videosData && videosData.results
+        ? (videosData.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') ||
+           videosData.results.find(v => v.site === 'YouTube'))
+        : null;
+
+    fullDetails._trailerKey = trailer ? trailer.key : null;
     currentDetailItem = fullDetails;
 
-    // Populate UI
     const title = fullDetails.title || fullDetails.name;
     const bgImage = fullDetails.backdrop_path ? `${IMG_BASE_ORIGINAL}${fullDetails.backdrop_path}` : FALLBACK_IMG;
     const rating = fullDetails.vote_average ? fullDetails.vote_average.toFixed(1) : 'N/A';
@@ -344,8 +393,15 @@ async function openDetails(item) {
 
     UI.detailsOverview.textContent = fullDetails.overview || "No synopsis available.";
 
+    // Show/hide trailer button
+    if (fullDetails._trailerKey) {
+        UI.detailsTrailerBtn.style.display = 'inline-flex';
+    } else {
+        UI.detailsTrailerBtn.style.display = 'none';
+    }
+
     UI.detailsModal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Stop background scrolling
+    document.body.style.overflow = 'hidden';
 }
 
 /**
@@ -353,5 +409,31 @@ async function openDetails(item) {
  */
 function closeDetailsModal() {
     UI.detailsModal.classList.remove('active');
-    document.body.style.overflow = 'auto'; // Restore scroll
+    document.body.style.overflow = 'auto';
+}
+
+/**
+ * Open Trailer Modal
+ */
+function openTrailerModal(youtubeKey) {
+    UI.trailerIframe.src = `https://www.youtube.com/embed/${youtubeKey}?autoplay=1`;
+    UI.trailerModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Close Trailer Modal
+ */
+function closeTrailerModal() {
+    UI.trailerModal.classList.remove('active');
+    UI.trailerIframe.src = '';
+    document.body.style.overflow = 'auto';
+}
+
+/**
+ * Apply mobile grid columns from picker
+ */
+function applyMobileColumns() {
+    const cols = UI.filterColumns ? UI.filterColumns.value : '2';
+    UI.grid.style.setProperty('--mobile-cols', cols);
 }
