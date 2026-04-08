@@ -295,7 +295,7 @@ function renderGrid(items, startIndex = 0) {
         // Person result
         if (item.media_type === 'person') {
             const photo = item.profile_path ? `${IMG_BASE_URL}${item.profile_path}` : 'https://via.placeholder.com/200x300/18181c/ffffff?text=?';
-            const dept = item.known_for_department || '';
+            const dept = item.known_for_department || 'Person';
             const card = document.createElement('div');
             card.className = 'media-card person-card';
             card.innerHTML = `
@@ -456,20 +456,30 @@ async function openPersonCredits(person) {
     const data = await getPersonCredits(person.id);
     if (!data) return;
 
-    // Combine cast + crew, deduplicate by id, sort by popularity
-    const all = [...(data.cast || []), ...(data.crew || [])];
+    // Combine cast + crew, deduplicate by id+type, sort by popularity
     const seen = new Set();
-    const unique = all
+    const unique = [...(data.cast || []), ...(data.crew || [])]
         .filter(item => {
-            if (seen.has(item.id)) return false;
-            seen.add(item.id);
-            return item.poster_path;
+            const key = `${item.media_type}-${item.id}`;
+            if (seen.has(key) || !item.poster_path) return false;
+            seen.add(key);
+            return true;
         })
         .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
-        .slice(0, 60);
+        .slice(0, 80);
 
-    if (unique.length > 0) updateHero(unique[0]);
-    renderGrid(unique, 1);
+    // Update hero with person photo since credits may lack backdrops
+    if (person.profile_path) {
+        UI.heroBanner.style.backgroundImage = `url(${IMG_BASE_ORIGINAL}${person.profile_path})`;
+        UI.heroTitle.textContent = person.name;
+        UI.heroDesc.textContent = `${person.known_for_department || 'Actor'} · ${unique.length} titles`;
+        UI.heroTitle.classList.remove('skeleton-text');
+        UI.heroDesc.classList.remove('skeleton-text');
+    } else if (unique.length > 0) {
+        updateHero(unique[0]);
+    }
+
+    renderGrid(unique, 0);
 }
 
 function openTrailerModal(youtubeKey) {
