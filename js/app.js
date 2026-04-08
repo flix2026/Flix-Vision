@@ -266,8 +266,9 @@ async function searchAndRenderType(query) {
     UI.sectionTitle.textContent = TAB_TITLES.search;
     const data = await searchContent(query, currentPage);
     if (data && data.results) {
+        // Show first result in hero AND in grid (startIndex 0)
         if (data.results.length > 0) updateHero(data.results[0]);
-        renderGrid(data.results, 1);
+        renderGrid(data.results, 0);
     }
 }
 
@@ -456,27 +457,28 @@ async function openPersonCredits(person) {
     const data = await getPersonCredits(person.id);
     if (!data) return;
 
-    // Combine cast + crew, deduplicate by id+type, sort by popularity
+    // Combine cast + crew, deduplicate by media_type+id, sort by release date desc
     const seen = new Set();
     const unique = [...(data.cast || []), ...(data.crew || [])]
         .filter(item => {
             const key = `${item.media_type}-${item.id}`;
-            if (seen.has(key) || !item.poster_path) return false;
+            if (seen.has(key)) return false;
             seen.add(key);
             return true;
         })
-        .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
-        .slice(0, 80);
+        .sort((a, b) => {
+            const da = a.release_date || a.first_air_date || '0';
+            const db = b.release_date || b.first_air_date || '0';
+            return db.localeCompare(da);
+        });
 
-    // Update hero with person photo since credits may lack backdrops
+    // Hero shows person photo
     if (person.profile_path) {
         UI.heroBanner.style.backgroundImage = `url(${IMG_BASE_ORIGINAL}${person.profile_path})`;
         UI.heroTitle.textContent = person.name;
         UI.heroDesc.textContent = `${person.known_for_department || 'Actor'} · ${unique.length} titles`;
         UI.heroTitle.classList.remove('skeleton-text');
         UI.heroDesc.classList.remove('skeleton-text');
-    } else if (unique.length > 0) {
-        updateHero(unique[0]);
     }
 
     renderGrid(unique, 0);
