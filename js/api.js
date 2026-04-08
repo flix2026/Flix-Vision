@@ -94,6 +94,10 @@ async function searchContent(query, page = 1) {
     return await fetchTMDB('/search/multi', { query, page });
 }
 
+async function getPersonCredits(personId) {
+    return await fetchTMDB(`/person/${personId}/combined_credits`);
+}
+
 function formatDate(dateString) {
     if (!dateString) return 'Unknown';
     const options = { year: 'numeric', month: 'short', day: 'numeric' };

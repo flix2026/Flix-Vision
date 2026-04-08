@@ -291,6 +291,26 @@ function updateHero(item) {
 function renderGrid(items, startIndex = 0) {
     for (let i = startIndex; i < items.length; i++) {
         const item = items[i];
+
+        // Person result
+        if (item.media_type === 'person') {
+            const photo = item.profile_path ? `${IMG_BASE_URL}${item.profile_path}` : 'https://via.placeholder.com/200x300/18181c/ffffff?text=?';
+            const dept = item.known_for_department || '';
+            const card = document.createElement('div');
+            card.className = 'media-card person-card';
+            card.innerHTML = `
+                <img src="${photo}" alt="${item.name}" loading="lazy">
+                <div class="card-person-badge">${dept}</div>
+                <div class="card-overlay">
+                    <div class="card-title">${item.name}</div>
+                    <div class="card-meta"><span>${dept}</span></div>
+                </div>
+            `;
+            card.addEventListener('click', () => openPersonCredits(item));
+            UI.grid.appendChild(card);
+            continue;
+        }
+
         if (!item.poster_path && !item.backdrop_path) continue;
         const title = item.title || item.name;
         const poster = item.poster_path ? `${IMG_BASE_URL}${item.poster_path}` : FALLBACK_IMG;
@@ -423,6 +443,33 @@ async function openDetails(item) {
 function closeDetailsModal() {
     UI.detailsModal.classList.remove('active');
     document.body.style.overflow = 'auto';
+}
+
+/**
+ * Open person filmography — reuse the grid
+ */
+async function openPersonCredits(person) {
+    currentTab = 'search';
+    UI.grid.innerHTML = '';
+    UI.sectionTitle.textContent = `${person.name} — Filmography`;
+
+    const data = await getPersonCredits(person.id);
+    if (!data) return;
+
+    // Combine cast + crew, deduplicate by id, sort by popularity
+    const all = [...(data.cast || []), ...(data.crew || [])];
+    const seen = new Set();
+    const unique = all
+        .filter(item => {
+            if (seen.has(item.id)) return false;
+            seen.add(item.id);
+            return item.poster_path;
+        })
+        .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+        .slice(0, 60);
+
+    if (unique.length > 0) updateHero(unique[0]);
+    renderGrid(unique, 1);
 }
 
 function openTrailerModal(youtubeKey) {
