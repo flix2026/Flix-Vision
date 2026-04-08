@@ -71,7 +71,12 @@ function populateYears() {
 function setupEventListeners() {
     // Hamburger (mobile nav accordion)
     UI.hamburger.addEventListener('click', () => {
-        UI.navLinks.classList.toggle('open');
+        const isOpen = UI.navLinks.classList.toggle('open');
+        if (isOpen) {
+            // Position dropdown exactly below the navbar
+            const navbarHeight = document.querySelector('.navbar').getBoundingClientRect().height;
+            UI.navLinks.style.top = navbarHeight + 'px';
+        }
     });
 
     // Close mobile nav when a tab is clicked
@@ -357,15 +362,19 @@ function renderGrid(items, startIndex = 0) {
  * Open Details Modal
  */
 async function openDetails(item) {
-    const type = item.media_type || (item.title ? 'movie' : 'tv');
+    // Determine type: prefer media_type, then fall back using tab context
+    let type = item.media_type;
+    if (!type) {
+        if (currentTab === 'movies' || currentTab === 'theaters') type = 'movie';
+        else if (currentTab === 'tv' || currentTab === 'anime') type = 'tv';
+        else type = item.title ? 'movie' : 'tv'; // search/home fallback
+    }
 
     const [fullDetails, videosData] = await Promise.all([
         fetchDetails(type, item.id),
         getVideos(type, item.id)
     ]);
     if (!fullDetails) return;
-
-    // Find best trailer from videos
     const trailer = videosData && videosData.results
         ? (videosData.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') ||
            videosData.results.find(v => v.site === 'YouTube'))
