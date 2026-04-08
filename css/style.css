@@ -588,7 +588,77 @@ select:focus {
     }
 }
 
-/* Details Modal Specifics */
+/* Hamburger button — hidden on desktop */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    order: 3;
+}
+
+/* Hide mobile-only elements on desktop */
+.mobile-only {
+    display: none;
+}
+
+/* Always-visible rating badge on cards */
+.card-rating {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #ffd700;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(4px);
+    z-index: 3;
+}
+
+/* Trailer Modal */
+.trailer-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    justify-content: center;
+    align-items: center;
+}
+
+.trailer-modal.active {
+    display: flex;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.trailer-content {
+    position: relative;
+    width: 90%;
+    max-width: 960px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.trailer-backdrop {
+    position: absolute;
+    inset: 0;
+}
+
+.trailer-content .close-details {
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+}
 .details-content {
     background: var(--bg-dark);
     width: 90%;
@@ -681,8 +751,43 @@ select:focus {
 }
 
 @media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
     .nav-links {
         display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-dark);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        padding: 12px 0;
+        gap: 0;
+        z-index: 200;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-btn {
+        width: 100%;
+        text-align: left;
+        padding: 14px 24px;
+        border-radius: 0;
+        font-size: 1rem;
+    }
+
+    .nav-btn.active::after {
+        display: none;
+    }
+
+    .nav-btn.active {
+        background: rgba(229, 9, 20, 0.15);
+        color: var(--accent);
     }
 
     #hero-title {
@@ -695,5 +800,16 @@ select:focus {
 
     .navbar {
         padding: 15px 20px;
+        position: relative;
+    }
+
+    /* Mobile grid: use CSS variable set by JS */
+    .media-grid {
+        grid-template-columns: repeat(var(--mobile-cols, 2), 1fr);
+        gap: 12px;
+    }
+
+    .mobile-only {
+        display: block !important;
     }
 }
