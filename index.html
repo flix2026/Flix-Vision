@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlixVision Web</title>
+    <title>Flox</title>
     <!-- Modern Typography -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&display=swap"
@@ -19,7 +19,7 @@
     <header class="navbar">
         <div class="logo">
             <i class="fa-solid fa-play-circle gradient-text"></i>
-            <span class="gradient-text">FlixVision</span>
+            <span class="gradient-text">Flox</span>
         </div>
         <!-- Mobile hamburger -->
         <button class="hamburger" id="hamburger-btn" aria-label="Menu">
@@ -82,15 +82,15 @@
                     <option value="original_title.asc">Title A–Z</option>
                     <option value="original_title.desc">Title Z–A</option>
                 </select>
-                <!-- Mobile-only grid columns picker -->
-                <select id="filter-columns" class="mobile-only">
-                    <option value="2">2 per row</option>
-                    <option value="1">1 per row</option>
-                    <option value="3">3 per row</option>
-                    <option value="4">4 per row</option>
-                    <option value="5">5 per row</option>
-                </select>
             </div>
+            <!-- Mobile-only grid columns picker — always visible on mobile -->
+            <select id="filter-columns" class="mobile-only">
+                <option value="2">2 per row</option>
+                <option value="1">1 per row</option>
+                <option value="3">3 per row</option>
+                <option value="4">4 per row</option>
+                <option value="5">5 per row</option>
+            </select>
         </div>
 
         <!-- Media Grid -->
