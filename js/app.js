@@ -210,11 +210,14 @@ async function loadContent(isNewTab = false) {
         const fSort = UI.filterSort.value;
         const isFiltering = fGenre !== '' || fYear !== '' || fSort !== 'popularity.desc';
 
-        if (isFiltering && ['movies', 'tv', 'anime'].includes(currentTab)) {
-            const type = (currentTab === 'tv' || currentTab === 'anime') ? 'tv' : 'movie';
+        // Determine media type for discover calls
+        const discoverType = (currentTab === 'tv' || currentTab === 'anime' || currentTab === 'airing') ? 'tv' : 'movie';
+
+        if (isFiltering) {
+            // Always use /discover when any filter/sort is active
             let sortBy = fSort;
             if (sortBy === 'release_date.desc' || sortBy === 'release_date.asc') {
-                sortBy = type === 'movie'
+                sortBy = discoverType === 'movie'
                     ? sortBy.replace('release_date', 'primary_release_date')
                     : sortBy.replace('release_date', 'first_air_date');
             }
@@ -227,10 +230,10 @@ async function loadContent(isNewTab = false) {
             }
             if (currentTab === 'anime') params.with_original_language = 'ja';
             if (fYear) {
-                if (type === 'movie') params.primary_release_year = fYear;
+                if (discoverType === 'movie') params.primary_release_year = fYear;
                 else params.first_air_date_year = fYear;
             }
-            data = await discoverContent(type, params);
+            data = await discoverContent(discoverType, params);
         } else {
             switch (currentTab) {
                 case 'home':      data = await getTrending(currentPage); break;
