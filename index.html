@@ -5,11 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flix</title>
-    <!-- Modern Typography -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&display=swap"
-        rel="stylesheet">
-    <!-- FontAwesome for Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -21,7 +17,6 @@
             <i class="fa-solid fa-play-circle gradient-text"></i>
             <span class="gradient-text">Flix</span>
         </div>
-        <!-- Mobile hamburger -->
         <button class="hamburger" id="hamburger-btn" aria-label="Menu">
             <i class="fa-solid fa-bars"></i>
         </button>
@@ -31,6 +26,9 @@
             <button class="nav-btn" data-tab="tv">TV Shows</button>
             <button class="nav-btn" data-tab="anime">Anime</button>
             <button class="nav-btn" data-tab="theaters">In Theaters</button>
+            <button class="nav-btn" data-tab="top_rated">Top Rated</button>
+            <button class="nav-btn" data-tab="upcoming">Upcoming</button>
+            <button class="nav-btn" data-tab="airing">Airing Today</button>
         </nav>
         <div class="search-container">
             <i class="fa-solid fa-search search-icon"></i>
@@ -57,8 +55,6 @@
 
     <!-- Main Content Area -->
     <main class="content-container">
-
-        <!-- Welcome Title and Filters -->
         <div class="section-header">
             <h2 id="section-title">Trending Now</h2>
             <div class="filters" id="content-filters" style="display: none;">
@@ -83,7 +79,6 @@
                     <option value="original_title.desc">Title Z–A</option>
                 </select>
             </div>
-            <!-- Mobile-only grid columns picker — always visible on mobile -->
             <select id="filter-columns" class="mobile-only">
                 <option value="2">2 per row</option>
                 <option value="1">1 per row</option>
@@ -92,16 +87,11 @@
             </select>
         </div>
 
-        <!-- Media Grid -->
-        <div class="media-grid" id="media-grid">
-            <!-- Items injected by JS -->
-        </div>
+        <div class="media-grid" id="media-grid"></div>
 
-        <!-- Loading Spinner -->
         <div class="loader-container" id="infinite-loader" style="display: none;">
             <div class="spinner"></div>
         </div>
-
     </main>
 
     <!-- Video Player Modal -->
@@ -109,42 +99,36 @@
         <div class="player-modal-content">
             <div class="player-header">
                 <h3 id="player-title">Now Playing</h3>
-
-                <div class="server-selector" id="server-selector-container">
+                <div class="server-selector">
                     <label for="server-dropdown">Source:</label>
                     <select id="server-dropdown">
                         <option value="vidsrc">VidSrc</option>
+                        <option value="vidsrc2">VidSrc 2</option>
+                        <option value="vidsrc3">VidSrc 3</option>
                         <option value="smashy">SmashyStream</option>
                         <option value="autoembed">AutoEmbed</option>
+                        <option value="multiembed">MultiEmbed</option>
+                        <option value="moflix">Moflix</option>
                     </select>
                 </div>
-
-                <!-- Ad Blocker Toggle -->
                 <div class="adblock-toggle-container">
-                    <label for="adblock-toggle"
-                        title="Disabling may allow popup ads, but fixes players that block sandboxing">Ad
-                        Blocker:</label>
+                    <label for="adblock-toggle" title="Disabling may allow popup ads, but fixes players that block sandboxing">Ad Blocker:</label>
                     <label class="switch">
                         <input type="checkbox" id="adblock-toggle" checked>
                         <span class="slider round"></span>
                     </label>
                 </div>
-
-                <!-- TV season/episode selector (Shows only if TV) -->
                 <div class="tv-selector" id="tv-selector" style="display: none;">
                     <label for="season-dropdown">S:</label>
                     <select id="season-dropdown"></select>
-
                     <label for="episode-dropdown">E:</label>
                     <select id="episode-dropdown"></select>
                 </div>
-
                 <button class="close-btn" id="close-player">
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
             <div class="player-wrapper">
-                <!-- Sandbox prevents popups, redirects, and malicious behavior when clicking the player -->
                 <iframe id="video-iframe" src="" frameborder="0"
                     sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
             </div>
@@ -173,6 +157,21 @@
                             <i class="fa-brands fa-youtube"></i> Trailer
                         </button>
                     </div>
+                    <!-- Watch Providers -->
+                    <div id="details-providers" class="details-section" style="display:none;">
+                        <h4>Where to Watch</h4>
+                        <div id="details-providers-list" class="providers-list"></div>
+                    </div>
+                    <!-- Cast -->
+                    <div id="details-cast-section" class="details-section" style="display:none;">
+                        <h4>Cast</h4>
+                        <div id="details-cast" class="cast-list"></div>
+                    </div>
+                    <!-- Recommendations -->
+                    <div id="details-recs-section" class="details-section" style="display:none;">
+                        <h4>More Like This</h4>
+                        <div id="details-recs" class="recs-grid"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,13 +183,11 @@
         <div class="trailer-content">
             <button class="close-details" id="close-trailer"><i class="fa-solid fa-times"></i></button>
             <div class="player-wrapper">
-                <iframe id="trailer-iframe" src="" frameborder="0" allowfullscreen
-                    allow="autoplay; encrypted-media"></iframe>
+                <iframe id="trailer-iframe" src="" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/player.js"></script>
     <script src="js/app.js"></script>

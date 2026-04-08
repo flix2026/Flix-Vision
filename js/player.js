@@ -15,70 +15,70 @@ let currentMediaId = null;
 let currentMediaType = null;
 let currentSeasonsCount = 0;
 
-/**
- * Sources directly translated from FlixVision APK source code
- */
 const SOURCES = {
     vidsrc(id, type, s, e) {
         if (type === 'movie') return `https://vidsrc.xyz/embed/movie/${id}`;
         return `https://vidsrc.xyz/embed/tv/${id}/${s}-${e}`;
+    },
+    vidsrc2(id, type, s, e) {
+        if (type === 'movie') return `https://vidsrc.to/embed/movie/${id}`;
+        return `https://vidsrc.to/embed/tv/${id}/${s}/${e}`;
+    },
+    vidsrc3(id, type, s, e) {
+        if (type === 'movie') return `https://vidsrc.me/embed/movie?tmdb=${id}`;
+        return `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`;
     },
     smashy(id, type, s, e) {
         if (type === 'movie') return `https://embed.smashystream.com/playere.php?tmdb=${id}`;
         return `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}`;
     },
     autoembed(id, type, s, e) {
-        // Autoembed only reliably does movies in the basic reverse engineer we found, 
-        // but supports TV like this usually:
         if (type === 'movie') return `https://autoembed.co/movie/tmdb/${id}`;
         return `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`;
+    },
+    multiembed(id, type, s, e) {
+        if (type === 'movie') return `https://multiembed.mov/?video_id=${id}&tmdb=1`;
+        return `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`;
+    },
+    moflix(id, type, s, e) {
+        if (type === 'movie') return `https://moflix-stream.xyz/movie/tmdb/${id}`;
+        return `https://moflix-stream.xyz/tv/tmdb/${id}/${s}/${e}`;
     }
 };
 
-/**
- * Open Player Modal
- */
 async function playMovie(id, type, title, totalSeasons = 1) {
     currentMediaId = id;
-    currentMediaType = type === 'anime' ? 'tv' : type; // Treat Anime as TV
+    currentMediaType = type === 'anime' ? 'tv' : type;
     currentSeasonsCount = totalSeasons;
 
     DOM.playerTitle.textContent = title;
     DOM.playerModal.classList.add('active');
 
-    // Handle TV logic
     if (currentMediaType === 'tv') {
         DOM.tvSelectors.style.display = 'flex';
         populateSeasons(totalSeasons);
-        await updateEpisodesList(1); // Default strictly to season 1
+        await updateEpisodesList(1);
     } else {
         DOM.tvSelectors.style.display = 'none';
-        updateVideoSrc(); // Default movie playback
+        updateVideoSrc();
     }
 }
 
-/**
- * Handle closing the player
- */
 DOM.closePlayer.addEventListener('click', () => {
     DOM.playerModal.classList.remove('active');
-    DOM.iframe.src = ''; // Stop video playback
+    DOM.iframe.src = '';
 });
 
 DOM.serverSelect.addEventListener('change', updateVideoSrc);
 DOM.adblockToggle.addEventListener('change', updateVideoSrc);
 
 DOM.seasonSelect.addEventListener('change', async (e) => {
-    const s = e.target.value;
-    await updateEpisodesList(s);
+    await updateEpisodesList(e.target.value);
     updateVideoSrc();
 });
 
 DOM.epSelect.addEventListener('change', updateVideoSrc);
 
-/**
- * Update the IFrame SRC based on active states
- */
 function updateVideoSrc() {
     const server = DOM.serverSelect.value;
     const season = DOM.seasonSelect.value;
@@ -92,18 +92,11 @@ function updateVideoSrc() {
     }
 
     const url = SOURCES[server](currentMediaId, currentMediaType, season, episode);
-    // Add small delay to ensure attribute is applied before src change
-    setTimeout(() => {
-        DOM.iframe.src = url;
-    }, 50);
+    setTimeout(() => { DOM.iframe.src = url; }, 50);
 }
 
-/**
- * Build Season dropdown
- */
 function populateSeasons(count) {
     DOM.seasonSelect.innerHTML = '';
-    // TVDB/TMDB seasons usually start at 1, sometimes 0 for specials. We'll start at 1.
     for (let i = 1; i <= count; i++) {
         const opt = document.createElement('option');
         opt.value = i;
@@ -112,13 +105,9 @@ function populateSeasons(count) {
     }
 }
 
-/**
- * Build Episode dropdown from TMDB data
- */
 async function updateEpisodesList(seasonNum) {
     DOM.epSelect.innerHTML = '<option>Loading...</option>';
     DOM.epSelect.disabled = true;
-
     try {
         const data = await getTVSeasonDetails(currentMediaId, seasonNum);
         if (data && data.episodes) {
@@ -130,7 +119,7 @@ async function updateEpisodesList(seasonNum) {
                 DOM.epSelect.appendChild(opt);
             });
             DOM.epSelect.disabled = false;
-            updateVideoSrc(); // Play the first episode when list loads
+            updateVideoSrc();
         }
     } catch (e) {
         console.error('Failed fetching episodes', e);
