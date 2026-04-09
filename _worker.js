@@ -61,6 +61,6 @@ export default {
       return new Response(JSON.stringify(data), { headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' } });
     }
 
-    return env.ASSETS.fetch(request);
+    try { return env.ASSETS.fetch(request); } catch(e) { return new Response('Not found', {status:404}); }
   }
 };
