@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="MainScene" extends="Scene">
+    <script type="text/brightscript" uri="pkg:/components/MainScene.brs" />
+    <children>
+
+        <Rectangle id="bg" color="#0a0a0c" width="1280" height="720" />
+
+        <Rectangle color="#18181c" width="1280" height="70" />
+        <Label text="FLIX VISION" color="#e50914" font="font:LargeBoldSystemFont"
+               translation="[40,18]" />
+        <Label id="tabLabel" text="TRENDING" color="#ffffff" font="font:MediumBoldSystemFont"
+               translation="[300,22]" />
+
+        <PosterGrid
+            id="grid"
+            translation="[40,90]"
+            basePosterSize="[180,270]"
+            caption1NumLines="1"
+            numColumns="6"
+            numRows="2"
+            itemSpacing="[16,16]"
+        />
+
+        <BusySpinner id="spinner" translation="[600,360]" visible="true" />
+
+        <Label id="statusLabel" text="" color="#a1a1aa" font="font:SmallSystemFont"
+               translation="[40,690]" />
+
+    </children>
+</component>
