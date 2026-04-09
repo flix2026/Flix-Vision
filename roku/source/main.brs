@@ -5,25 +5,24 @@ sub Main()
     scene  = screen.CreateScene("MainScene")
     screen.show()
 
-    scene.observeField("openWebUrl", port)
-
     while true
-        msg = wait(0, port)
+        msg = wait(200, port)
         if type(msg) = "roSGScreenEvent"
             if msg.isScreenClosed() then return
-        else if type(msg) = "roSGNodeEvent"
-            if msg.getField() = "openWebUrl"
-                url = msg.getData()
-                if url <> ""
-                    scene.openWebUrl = ""
-                    runWebPlayer(url, screen, port, scene)
-                end if
+        end if
+
+        ' Poll for openWebUrl — field observe from main thread is unreliable
+        url = scene.openWebUrl
+        if url <> invalid
+            if url <> ""
+                scene.openWebUrl = ""
+                runWebPlayer(url, port, scene)
             end if
         end if
     end while
 end sub
 
-sub runWebPlayer(url as string, screen as object, port as object, scene as object)
+sub runWebPlayer(url as string, port as object, scene as object)
     r = CreateObject("roRectangle", 0, 0, 1280, 720)
     widget = CreateObject("roHtmlWidget", r)
 
@@ -32,7 +31,6 @@ sub runWebPlayer(url as string, screen as object, port as object, scene as objec
         return
     end if
 
-    ' Route widget events to the SAME port as screen so Back key always works
     widget.setUrl(url)
     widget.setMessagePort(port)
     widget.show()
@@ -47,10 +45,8 @@ sub runWebPlayer(url as string, screen as object, port as object, scene as objec
             end if
         else if type(msg) = "roHtmlWidgetEvent"
             if msg.isKeyPress()
-                if msg.getKey() = 0 then exit while  ' back
+                if msg.getKey() = 0 then exit while
             end if
-        else if type(msg) = "roSGNodeEvent"
-            ' new openWebUrl while player open — ignore
         end if
     end while
 
