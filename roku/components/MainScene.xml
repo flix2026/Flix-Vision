@@ -1,30 +1,64 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="MainScene" extends="Scene">
+    <interface>
+        <field id="openWebUrl"      type="string" value="" />
+        <field id="webPlayerClosed" type="boolean" value="false" alwaysNotify="true" />
+    </interface>
     <script type="text/brightscript" uri="pkg:/components/MainScene.brs" />
     <children>
 
-        <Rectangle id="bg" color="#0a0a0c" width="1280" height="720" />
+        <Rectangle id="bg" color="0x0a0a0cFF" width="1280" height="720" />
 
-        <Rectangle color="#18181c" width="1280" height="70" />
-        <Label text="FLIX VISION" color="#e50914" font="font:LargeBoldSystemFont"
-               translation="[40,18]" />
-        <Label id="tabLabel" text="TRENDING" color="#ffffff" font="font:MediumBoldSystemFont"
-               translation="[300,22]" />
+        <!-- Hero -->
+        <Poster id="heroPoster" width="1280" height="340" loadDisplayMode="scaleToZoom" opacity="0.4" />
+        <Rectangle color="0x0a0a0c99" width="560" height="340" translation="[0,0]" />
+        <Rectangle color="0x0a0a0cFF" width="1280" height="60" translation="[0,280]" opacity="0.95" />
+        <Label id="heroTitle" text="Loading..." color="0xFFFFFFFF" font="font:LargeBoldSystemFont"
+               width="540" height="72" wrap="true" translation="[30,150]" />
+        <Label id="heroDesc" text="" color="0xA1A1AAFF" font="font:SmallSystemFont"
+               width="540" height="48" wrap="true" translation="[30,232]" />
 
-        <PosterGrid
-            id="grid"
-            translation="[40,90]"
-            basePosterSize="[180,270]"
-            caption1NumLines="1"
-            numColumns="6"
-            numRows="2"
-            itemSpacing="[16,16]"
-        />
+        <!-- Tab bar -->
+        <Rectangle color="0x18181cFF" width="1280" height="44" translation="[0,290]" />
+        <Label id="tab0" text="Home"         color="0xFFFFFFFF" font="font:SmallBoldSystemFont" translation="[20,298]"  />
+        <Label id="tab1" text="Movies"       color="0xA1A1AAFF" font="font:SmallSystemFont"     translation="[110,298]" />
+        <Label id="tab2" text="TV Shows"     color="0xA1A1AAFF" font="font:SmallSystemFont"     translation="[205,298]" />
+        <Label id="tab3" text="Anime"        color="0xA1A1AAFF" font="font:SmallSystemFont"     translation="[310,298]" />
+        <Label id="tab4" text="In Theaters"  color="0xA1A1AAFF" font="font:SmallSystemFont"     translation="[395,298]" />
+        <Label id="tab5" text="Top Rated"    color="0xA1A1AAFF" font="font:SmallSystemFont"     translation="[530,298]" />
+        <Label id="tab6" text="Upcoming"     color="0xA1A1AAFF" font="font:SmallSystemFont"     translation="[650,298]" />
+        <Label id="tab7" text="Airing Today" color="0xA1A1AAFF" font="font:SmallSystemFont"     translation="[770,298]" />
+        <Rectangle id="tabUnderline" color="0xe50914FF" width="44" height="3" translation="[20,331]" />
 
-        <BusySpinner id="spinner" translation="[600,360]" visible="true" />
+        <!-- Grid -->
+        <PosterGrid id="grid" translation="[20,336]"
+            basePosterSize="[144,216]" caption1NumLines="1"
+            numColumns="8" numRows="2" itemSpacing="[8,6]" />
 
-        <Label id="statusLabel" text="" color="#a1a1aa" font="font:SmallSystemFont"
-               translation="[40,690]" />
+        <BusySpinner id="spinner" translation="[620,540]" visible="true" />
+
+        <!-- Focus trap -->
+        <Rectangle id="focusTrap" color="0x00000000" width="1" height="1" focusable="true" />
+
+        <!-- Details overlay -->
+        <Rectangle id="detailsBg" color="0x000000EE" width="1280" height="720" translation="[0,0]" visible="false" />
+        <Poster id="detailsPoster" width="220" height="330" loadDisplayMode="scaleToZoom"
+                translation="[60,195]" visible="false" />
+        <Label id="detailsTitle" text="" color="0xFFFFFFFF" font="font:LargeBoldSystemFont"
+               width="900" height="80" wrap="true" translation="[320,130]" visible="false" />
+        <Label id="detailsMeta" text="" color="0xA1A1AAFF" font="font:SmallSystemFont"
+               width="900" height="28" translation="[320,220]" visible="false" />
+        <Label id="detailsOverview" text="" color="0xE4E4E7FF" font="font:SmallSystemFont"
+               width="900" height="148" wrap="true" translation="[320,258]" visible="false" />
+        <Rectangle id="btnPlayBg"    color="0xe50914FF" width="140" height="42" translation="[320,425]" visible="false" />
+        <Label     id="btnPlayLbl"   text="Play"    color="0xFFFFFFFF" font="font:MediumBoldSystemFont"
+                   width="140" height="42" horizAlign="center" vertAlign="center" translation="[320,425]" visible="false" />
+        <Rectangle id="btnTrailerBg" color="0x333333FF" width="150" height="42" translation="[476,425]" visible="false" />
+        <Label     id="btnTrailerLbl" text="Trailer" color="0xFFFFFFFF" font="font:MediumBoldSystemFont"
+                   width="150" height="42" horizAlign="center" vertAlign="center" translation="[476,425]" visible="false" />
+        <Rectangle id="btnCloseBg"   color="0x333333FF" width="120" height="42" translation="[642,425]" visible="false" />
+        <Label     id="btnCloseLbl"  text="Close"   color="0xFFFFFFFF" font="font:MediumBoldSystemFont"
+                   width="120" height="42" horizAlign="center" vertAlign="center" translation="[642,425]" visible="false" />
 
     </children>
 </component>

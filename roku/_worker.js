@@ -1,4 +1,15 @@
+// Flix Vision — Cloudflare Worker
 const TMDB_KEY = '2f3cb5763db1117fcba3948632f8aad9';
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Content-Type': 'application/json'
+};
+
+const HTML_CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Content-Type': 'text/html'
+};
 
 const SOURCES = [
   (type, id, s, e) => type === 'movie' ? `https://vidsrc.xyz/embed/movie/${id}` : `https://vidsrc.xyz/embed/tv/${id}/${s}-${e}`,
@@ -15,39 +26,31 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // ── /embed — iframe player page for Roku roHtmlWidget ────
-    if (url.pathname === '/embed') {
-      const type = url.searchParams.get('type') || 'movie';
-      const id   = url.searchParams.get('id');
-      const s    = url.searchParams.get('s') || '1';
-      const e    = url.searchParams.get('e') || '1';
-      const src  = Math.min(parseInt(url.searchParams.get('src') || '0'), SOURCES.length - 1);
-      if (!id) return new Response('missing id', { status: 400 });
-      const embedUrl = SOURCES[src](type, id, s, e);
-      const btns = SOURCE_NAMES.map((n, i) => {
-        const u = SOURCES[i](type, id, s, e);
-        const bg = i === src ? '#e50914' : '#333';
-        return `<button onclick="load('${u}')" style="background:${bg};color:#fff;border:none;padding:6px 14px;margin:2px;cursor:pointer;font-size:13px;border-radius:4px">${n}</button>`;
-      }).join('');
-      const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;display:flex;flex-direction:column;height:100vh}
-#bar{background:#111;padding:6px;display:flex;flex-wrap:wrap;gap:2px;flex-shrink:0}
-#f{flex:1;border:none;width:100%}</style></head><body>
-<div id="bar">${btns}</div>
-<iframe id="f" src="${embedUrl}" allowfullscreen allow="autoplay" referrerpolicy="origin"></iframe>
-<script>function load(u){document.getElementById('f').src=u}</script>
-</body></html>`;
-      return new Response(html, { headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/html' } });
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: { ...CORS, 'Access-Control-Allow-Methods': 'GET' } });
     }
 
-    // ── /trailer — YouTube embed page ────────────────────────
+    // ── /embed — full HTML page with iframe player (for Roku roHtmlWidget) ──
+    if (url.pathname === '/embed') {
+      const type  = url.searchParams.get('type') || 'movie';
+      const id    = url.searchParams.get('id');
+      const s     = url.searchParams.get('s') || '1';
+      const e     = url.searchParams.get('e') || '1';
+      const src   = parseInt(url.searchParams.get('src') || '0');
+      if (!id) return new Response('missing id', { status: 400 });
+      const idx = Math.min(src, SOURCES.length - 1);
+      const embedUrl = SOURCES[idx](type, id, s, e);
+      return new Response(playerHtml(embedUrl, SOURCE_NAMES, type, id, s, e, idx), { headers: HTML_CORS });
+    }
+
+    // ── /trailer — YouTube embed page ──────────────────────────
     if (url.pathname === '/trailer') {
       const v = url.searchParams.get('v');
       if (!v) return new Response('missing v', { status: 400 });
       const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>*{margin:0;padding:0;background:#000}iframe{width:100vw;height:100vh;border:none}</style></head>
 <body><iframe src="https://www.youtube.com/embed/${v}?autoplay=1" allowfullscreen allow="autoplay"></iframe></body></html>`;
-      return new Response(html, { headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/html' } });
+      return new Response(html, { headers: HTML_CORS });
     }
 
     // ── /tmdb/* ───────────────────────────────────────────────
@@ -58,9 +61,29 @@ export default {
       url.searchParams.forEach((v, k) => { if (k !== 'api_key') tmdbUrl.searchParams.set(k, v); });
       const resp = await fetch(tmdbUrl.toString());
       const data = await resp.json();
-      return new Response(JSON.stringify(data), { headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify(data), { headers: CORS });
     }
 
     return env.ASSETS.fetch(request);
   }
 };
+
+function playerHtml(embedUrl, names, type, id, s, e, activeIdx) {
+  const btns = names.map((n, i) => {
+    const url = SOURCES[i](type, id, s, e);
+    const active = i === activeIdx ? 'background:#e50914;color:#fff' : 'background:#333;color:#ccc';
+    return `<button onclick="load('${url}')" style="${active};border:none;padding:6px 12px;margin:2px;cursor:pointer;font-size:13px;border-radius:4px">${n}</button>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;flex-direction:column;height:100vh}
+#bar{background:#111;padding:6px;display:flex;flex-wrap:wrap;gap:2px;flex-shrink:0}
+#player{flex:1;border:none;width:100%}
+</style></head><body>
+<div id="bar">${btns}</div>
+<iframe id="player" src="${embedUrl}" allowfullscreen allow="autoplay" referrerpolicy="origin"></iframe>
+<script>function load(u){document.getElementById('player').src=u}</script>
+</body></html>`;
+}
