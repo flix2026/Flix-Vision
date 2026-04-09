@@ -339,7 +339,7 @@ sub startPlayback()
     m.playerOpen = true
     mt = itemMediaType(m.selectedItem)
     id = m.selectedItem.id.toStr()
-    url = "https://flix.thedevreal33.workers.dev/embed.html?type=" + mt + "&id=" + id
+    url = "https://flix.thedevreal33.workers.dev/embed?type=" + mt + "&id=" + id
     if mt = "tv"
         url = url + "&s=" + m.currentSeason.toStr() + "&e=" + m.currentEp.toStr()
     end if
@@ -352,7 +352,7 @@ sub playTrailer()
     hideDetails()
     m.playerOpen = true
     m.focusTrap.setFocus(true)
-    m.top.openWebUrl = "https://flix.thedevreal33.workers.dev/trailer.html?v=" + m.trailerKey
+    m.top.openWebUrl = "https://flix.thedevreal33.workers.dev/trailer?v=" + m.trailerKey
 end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
