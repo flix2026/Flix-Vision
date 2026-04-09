@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;flex-direction:column;height:100vh}
+#bar{background:#111;padding:6px;display:flex;flex-wrap:wrap;gap:2px;flex-shrink:0}
+#bar button{color:#fff;border:none;padding:6px 14px;cursor:pointer;font-size:13px;border-radius:4px}
+#f{flex:1;border:none;width:100%}
+</style>
+</head><body>
+<div id="bar"></div>
+<iframe id="f" allowfullscreen allow="autoplay" referrerpolicy="origin"></iframe>
+<script>
+const p = new URLSearchParams(location.search);
+const type = p.get('type') || 'movie';
+const id   = p.get('id') || '';
+const s    = p.get('s') || '1';
+const e    = p.get('e') || '1';
+const src  = parseInt(p.get('src') || '0');
+
+const SOURCES = [
+  ['VidSrc.xyz', type==='movie' ? `https://vidsrc.xyz/embed/movie/${id}` : `https://vidsrc.xyz/embed/tv/${id}/${s}-${e}`],
+  ['VidSrc.to',  type==='movie' ? `https://vidsrc.to/embed/movie/${id}`  : `https://vidsrc.to/embed/tv/${id}/${s}/${e}`],
+  ['VidSrc.me',  type==='movie' ? `https://vidsrc.me/embed/movie?tmdb=${id}` : `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`],
+  ['Smashy',     type==='movie' ? `https://embed.smashystream.com/playere.php?tmdb=${id}` : `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}`],
+  ['MultiEmbed', type==='movie' ? `https://multiembed.mov/?video_id=${id}&tmdb=1` : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`],
+  ['Moflix',     type==='movie' ? `https://moflix-stream.xyz/movie/tmdb/${id}` : `https://moflix-stream.xyz/tv/tmdb/${id}/${s}/${e}`],
+];
+
+const bar = document.getElementById('bar');
+const frame = document.getElementById('f');
+
+SOURCES.forEach(([name, url], i) => {
+  const btn = document.createElement('button');
+  btn.textContent = name;
+  btn.style.background = i === src ? '#e50914' : '#333';
+  btn.onclick = () => { frame.src = url; bar.querySelectorAll('button').forEach(b => b.style.background='#333'); btn.style.background='#e50914'; };
+  bar.appendChild(btn);
+});
+
+frame.src = SOURCES[Math.min(src, SOURCES.length-1)][1];
+</script>
+</body></html>

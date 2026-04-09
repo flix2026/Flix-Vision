@@ -11,17 +11,18 @@ function tabUW(t as integer) as integer
 end function
 
 function tabUrl(t as integer, page as integer) as string
-    base = "https://flix.thedevreal33.workers.dev/tmdb"
-    p = "?page=" + page.toStr()
-    if t = 0 then return base + "/trending/all/day" + p
-    if t = 1 then return base + "/movie/popular" + p
-    if t = 2 then return base + "/tv/popular" + p
-    if t = 3 then return base + "/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=" + page.toStr()
-    if t = 4 then return base + "/movie/now_playing" + p
-    if t = 5 then return base + "/movie/top_rated" + p
-    if t = 6 then return base + "/movie/upcoming" + p
-    if t = 7 then return base + "/tv/airing_today" + p
-    return base + "/trending/all/day" + p
+    base = "https://api.themoviedb.org/3"
+    key  = "?api_key=2f3cb5763db1117fcba3948632f8aad9"
+    p    = "&page=" + page.toStr()
+    if t = 0 then return base + "/trending/all/day" + key + p
+    if t = 1 then return base + "/movie/popular" + key + p
+    if t = 2 then return base + "/tv/popular" + key + p
+    if t = 3 then return base + "/discover/tv" + key + "&with_genres=16&with_original_language=ja&sort_by=popularity.desc" + p
+    if t = 4 then return base + "/movie/now_playing" + key + p
+    if t = 5 then return base + "/movie/top_rated" + key + p
+    if t = 6 then return base + "/movie/upcoming" + key + p
+    if t = 7 then return base + "/tv/airing_today" + key + p
+    return base + "/trending/all/day" + key + p
 end function
 
 sub init()
@@ -194,7 +195,7 @@ sub onGridSelect()
     m.spinner.visible = true
     mt = itemMediaType(m.selectedItem)
     id = m.selectedItem.id.toStr()
-    doFetch("onDetailResult", "https://flix.thedevreal33.workers.dev/tmdb/" + mt + "/" + id + "?append_to_response=videos")
+    doFetch("onDetailResult", "https://api.themoviedb.org/3/" + mt + "/" + id + "?api_key=2f3cb5763db1117fcba3948632f8aad9&append_to_response=videos")
 end sub
 
 sub onDetailResult()
@@ -338,7 +339,7 @@ sub startPlayback()
     m.playerOpen = true
     mt = itemMediaType(m.selectedItem)
     id = m.selectedItem.id.toStr()
-    url = "https://flix.thedevreal33.workers.dev/embed?type=" + mt + "&id=" + id
+    url = "https://flix.thedevreal33.workers.dev/embed.html?type=" + mt + "&id=" + id
     if mt = "tv"
         url = url + "&s=" + m.currentSeason.toStr() + "&e=" + m.currentEp.toStr()
     end if
@@ -351,7 +352,7 @@ sub playTrailer()
     hideDetails()
     m.playerOpen = true
     m.focusTrap.setFocus(true)
-    m.top.openWebUrl = "https://flix.thedevreal33.workers.dev/trailer?v=" + m.trailerKey
+    m.top.openWebUrl = "https://flix.thedevreal33.workers.dev/trailer.html?v=" + m.trailerKey
 end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
