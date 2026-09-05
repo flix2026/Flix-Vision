@@ -4,5 +4,6 @@ data/
 node_modules/
 .wrangler/
 
-# commit.bat contains your GitHub token — never commit it
+# commit.bat and commit.sh contain your GitHub token — never commit them
 commit.bat
+commit.sh
