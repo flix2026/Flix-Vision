@@ -227,6 +227,22 @@
         .badge-yellow { background: rgba(234,179,8,0.15);   color: #fde047; }
         .badge-gray   { background: rgba(113,113,122,0.2);  color: var(--muted); }
 
+        /* ── Sortable column headers ──────────────────────────────────── */
+        th.sortable {
+            cursor: pointer; user-select: none; white-space: nowrap;
+        }
+        th.sortable:hover { color: var(--text); }
+        th.sortable .sort-icon { margin-left: 5px; font-size: 0.65rem; opacity: 0.4; }
+        th.sortable.asc  .sort-icon::after { content: '▲'; opacity: 1; }
+        th.sortable.desc .sort-icon::after { content: '▼'; opacity: 1; }
+        th.sortable:not(.asc):not(.desc) .sort-icon::after { content: '⇅'; }
+
+        /* ── Direct access checkbox ───────────────────────────────────── */
+        .da-check {
+            width: 17px; height: 17px; accent-color: var(--accent);
+            cursor: pointer; display: block; margin: 0 auto;
+        }
+
         /* ── Search / filter bar ─────────────────────────────────────── */
         .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
         .filter-bar input, .filter-bar select {
@@ -370,7 +386,7 @@
     <!-- Top bar -->
     <header class="topbar">
         <div class="topbar-left">
-            <span class="topbar-logo">Flix Vision</span>
+            <span class="topbar-logo" onclick="location.href='https://flix.thedevreal33.workers.dev'" style="cursor:pointer" title="Go to Flix Vision">Flix Vision</span>
             <span class="topbar-badge">Admin</span>
             <span id="notif-badge">●</span>
         </div>
@@ -431,10 +447,11 @@
                     <table id="users-table">
                         <thead>
                             <tr>
-                                <th>Username</th>
+                                <th class="sortable" id="sort-username" onclick="sortUsers('username')">Username <span class="sort-icon"></span></th>
                                 <th>PIN Set</th>
                                 <th>Sessions</th>
-                                <th>Created</th>
+                                <th class="sortable" id="sort-created" onclick="sortUsers('created_at')">Created <span class="sort-icon"></span></th>
+                                <th style="text-align:center">Direct Access</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -794,12 +811,43 @@
         }
     }
 
+    // ── Sort state ─────────────────────────────────────────────────────────
+    let sortCol = 'created_at'; // default: newest first
+    let sortDir = 'desc';
+
+    function sortUsers(col) {
+        if (sortCol === col) {
+            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortCol = col;
+            sortDir = col === 'username' ? 'asc' : 'desc';
+        }
+        // Update header classes
+        ['username','created_at'].forEach(c => {
+            const el = document.getElementById('sort-' + (c === 'created_at' ? 'created' : c));
+            if (!el) return;
+            el.classList.remove('asc','desc');
+            if (c === sortCol) el.classList.add(sortDir);
+        });
+        renderUsers(allUsers);
+    }
+
     function renderUsers(users) {
         const q = (document.getElementById('user-search').value || '').toLowerCase();
-        const filtered = q ? users.filter(u => u.username.toLowerCase().includes(q)) : users;
+        let filtered = q ? users.filter(u => u.username.toLowerCase().includes(q)) : [...users];
+
+        // Sort
+        filtered.sort((a, b) => {
+            let av = sortCol === 'username' ? a.username.toLowerCase() : a.created_at;
+            let bv = sortCol === 'username' ? b.username.toLowerCase() : b.created_at;
+            if (av < bv) return sortDir === 'asc' ? -1 : 1;
+            if (av > bv) return sortDir === 'asc' ?  1 : -1;
+            return 0;
+        });
+
         const tbody = document.getElementById('users-tbody');
         if (!filtered.length) {
-            tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>No users found.</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>No users found.</p></div></td></tr>`;
             return;
         }
         tbody.innerHTML = filtered.map(u => `
@@ -808,6 +856,11 @@
                 <td>${u.hasPin ? '<span class="badge badge-green">Yes</span>' : '<span class="badge badge-red">No</span>'}</td>
                 <td><span class="badge ${u.activeSessions > 0 ? 'badge-green' : 'badge-gray'}">${u.activeSessions}</span></td>
                 <td>${fmtDate(u.created_at)}</td>
+                <td style="text-align:center">
+                    <input type="checkbox" class="da-check" ${u.direct_access ? 'checked' : ''}
+                        onchange="setDirectAccess(${u.id}, this.checked, '${esc(u.username)}')"
+                        title="${u.direct_access ? 'Revoke direct access' : 'Grant direct access'}">
+                </td>
                 <td>
                     <div class="td-actions">
                         <button class="btn btn-yellow btn-sm" onclick="openPinModal(${u.id},'${esc(u.username)}')"><i class="fa-solid fa-key"></i> Set PIN</button>
@@ -818,6 +871,20 @@
             </tr>
         `).join('');
     }
+
+    window.setDirectAccess = async function(userId, enabled, username) {
+        const { status, data } = await api('admin-set-direct-access', { userId, directAccess: enabled ? '1' : '0' });
+        if (status === 200) {
+            // Update local cache so re-render doesn't revert
+            const user = allUsers.find(u => u.id === userId);
+            if (user) user.direct_access = enabled;
+            toast(`Direct access ${enabled ? 'granted to' : 'revoked from'} ${username}.`, 'success');
+        } else {
+            toast(data.error || 'Failed to update direct access.', 'error');
+            // Revert checkbox
+            loadUsers();
+        }
+    };
 
     async function addUser() {
         const input = document.getElementById('new-username');

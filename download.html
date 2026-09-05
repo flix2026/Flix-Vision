@@ -136,7 +136,7 @@ footer a:hover{color:var(--text)}
     <div class="feature">
         <i class="fa-solid fa-laptop-mobile"></i>
         <h3>All Devices</h3>
-        <p>Windows, Mac, Linux, Android, and iPhone.</p>
+        <p>Windows, Mac, and Linux. Mobile access via local network.</p>
     </div>
     <div class="feature">
         <i class="fa-solid fa-film"></i>
@@ -180,7 +180,7 @@ footer a:hover{color:var(--text)}
                     <div class="step-content">
                         <h4>Download Flix Vision</h4>
                         <p>Download the zip file and extract it anywhere on your computer — Desktop is fine.</p>
-                        <a class="download-btn" href="https://github.com/flix2026/Flix-Vision/raw/main/download/downloads/flix-vision-windows.zip"><i class="fa-solid fa-download"></i> Download for Windows</a>
+                        <a class="download-btn" href="https://github.com/flix2026/Flix-Vision/releases/download/v1.0.0/flix-vision-windows.zip"><i class="fa-solid fa-download"></i> Download for Windows</a>
                     </div>
                 </div>
                 <div class="step">
@@ -215,7 +215,7 @@ footer a:hover{color:var(--text)}
                     <div class="step-num">2</div>
                     <div class="step-content">
                         <h4>Download Flix Vision</h4>
-                        <a class="download-btn" href="https://github.com/flix2026/Flix-Vision/raw/main/download/downloads/flix-vision-mac.zip"><i class="fa-solid fa-download"></i> Download for Mac</a>
+                        <a class="download-btn" href="https://github.com/flix2026/Flix-Vision/releases/download/v1.0.0/flix-vision-mac.zip"><i class="fa-solid fa-download"></i> Download for Mac</a>
                     </div>
                 </div>
                 <div class="step">
@@ -252,7 +252,7 @@ footer a:hover{color:var(--text)}
                     <div class="step-num">2</div>
                     <div class="step-content">
                         <h4>Download Flix Vision</h4>
-                        <a class="download-btn" href="https://github.com/flix2026/Flix-Vision/raw/main/download/downloads/flix-vision-linux.zip"><i class="fa-solid fa-download"></i> Download for Linux</a>
+                        <a class="download-btn" href="https://github.com/flix2026/Flix-Vision/releases/download/v1.0.0/flix-vision-linux.zip"><i class="fa-solid fa-download"></i> Download for Linux</a>
                     </div>
                 </div>
                 <div class="step">
@@ -273,24 +273,39 @@ footer a:hover{color:var(--text)}
         <div class="install-card">
             <div class="install-header">
                 <i class="fa-brands fa-android"></i>
-                <div><h3>Android</h3><p>Works directly in your browser — no install needed</p></div>
+                <div><h3>Android</h3><p>Requires Flix Vision running on a computer on the same Wi-Fi network</p></div>
             </div>
             <div class="steps">
                 <div class="step">
                     <div class="step-num">1</div>
                     <div class="step-content">
-                        <h4>Open in Chrome or Firefox</h4>
-                        <p>On your Android device, open Chrome or Firefox and go to:</p>
-                        <code class="code">https://flix.thedevreal33.workers.dev</code>
-                        <p style="margin-top:8px">Log in with your username and PIN. The app runs directly in your browser — nothing to install.</p>
+                        <h4>Install on a computer first</h4>
+                        <p>Flix Vision must be installed and running on a <strong>Windows, Mac, or Linux</strong> computer. Follow the instructions for your computer's OS above.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-num">2</div>
                     <div class="step-content">
-                        <h4>Add to Home Screen (optional)</h4>
-                        <p>In Chrome, tap the <strong>⋮ menu → Add to Home Screen</strong>. This makes it look and feel like a native app with a full-screen experience.</p>
-                        <div class="mobile-notice">✓ The app works fully in your mobile browser. Login, browse, and stream all work the same as desktop.</div>
+                        <h4>Connect your phone to the same Wi-Fi</h4>
+                        <p>Make sure your Android phone and your computer are on the same Wi-Fi network.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>Find your computer's local IP address</h4>
+                        <p><strong>Windows:</strong> Open Command Prompt and type <code class="code">ipconfig</code> — look for IPv4 Address (e.g. 192.168.1.10)</p>
+                        <p style="margin-top:6px"><strong>Mac/Linux:</strong> Open Terminal and type <code class="code">ifconfig</code> or <code class="code">ip addr</code></p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <h4>Open on your phone</h4>
+                        <p>On your Android device open Chrome and go to:</p>
+                        <code class="code">http://YOUR-COMPUTER-IP:8080</code>
+                        <p style="margin-top:6px">Example: <code class="code">http://192.168.1.10:8080</code></p>
+                        <div class="note">💡 Bookmark it or add to Home Screen for quick access next time.</div>
                     </div>
                 </div>
             </div>
@@ -302,24 +317,39 @@ footer a:hover{color:var(--text)}
         <div class="install-card">
             <div class="install-header">
                 <i class="fa-brands fa-apple"></i>
-                <div><h3>iPhone &amp; iPad</h3><p>Works directly in Safari — no install needed</p></div>
+                <div><h3>iPhone &amp; iPad</h3><p>Requires Flix Vision running on a computer on the same Wi-Fi network</p></div>
             </div>
             <div class="steps">
                 <div class="step">
                     <div class="step-num">1</div>
                     <div class="step-content">
-                        <h4>Open in Safari</h4>
-                        <p>On your iPhone or iPad, open <strong>Safari</strong> and go to:</p>
-                        <code class="code">https://flix.thedevreal33.workers.dev</code>
-                        <p style="margin-top:8px">Log in with your username and PIN. Everything works in your browser.</p>
+                        <h4>Install on a computer first</h4>
+                        <p>Flix Vision must be installed and running on a <strong>Windows, Mac, or Linux</strong> computer. Follow the instructions for your computer's OS above.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-num">2</div>
                     <div class="step-content">
-                        <h4>Add to Home Screen (optional)</h4>
-                        <p>Tap the <strong>Share button <i class="fa-solid fa-arrow-up-from-bracket"></i></strong> → <strong>Add to Home Screen</strong>. This gives you a full-screen app icon on your home screen.</p>
-                        <div class="mobile-notice">✓ Works fully in Safari on iPhone and iPad. Login, browse, and stream all work normally.</div>
+                        <h4>Connect your iPhone to the same Wi-Fi</h4>
+                        <p>Make sure your iPhone and your computer are on the same Wi-Fi network.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>Find your computer's local IP address</h4>
+                        <p><strong>Windows:</strong> Open Command Prompt, type <code class="code">ipconfig</code> — look for IPv4 Address</p>
+                        <p style="margin-top:6px"><strong>Mac:</strong> System Settings → Wi-Fi → your network → IP address shown there</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <h4>Open on your iPhone</h4>
+                        <p>Open <strong>Safari</strong> on your iPhone and go to:</p>
+                        <code class="code">http://YOUR-COMPUTER-IP:8080</code>
+                        <p style="margin-top:6px">Example: <code class="code">http://192.168.1.10:8080</code></p>
+                        <div class="note">💡 Tap the Share button → Add to Home Screen to save it as an icon.</div>
                     </div>
                 </div>
             </div>

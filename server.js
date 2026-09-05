@@ -171,7 +171,7 @@ const server = http.createServer((req, res) => {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
-server.listen(PORT, '127.0.0.1', () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('  ███████╗██╗     ██╗██╗  ██╗');
     console.log('  ██╔════╝██║     ██║╚██╗██╔╝');
@@ -180,7 +180,8 @@ server.listen(PORT, '127.0.0.1', () => {
     console.log('  ██║     ███████╗██║██╔╝ ██╗');
     console.log('  ╚═╝     ╚══════╝╚═╝╚═╝  ╚═╝  Vision');
     console.log('');
-    console.log(`  Server running at: http://127.0.0.1:${PORT}`);
+    console.log(`  Local:   http://127.0.0.1:${PORT}`);
+    console.log(`  Network: http://YOUR-IP:${PORT}  (for mobile devices on same Wi-Fi)`);
     console.log('');
     console.log('  Press Ctrl+C to stop.');
     console.log('');

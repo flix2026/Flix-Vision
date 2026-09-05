@@ -220,8 +220,15 @@ const AUTH = (() => {
         hideOverlay();
         if (!currentUser.id) {
             apiGET('me').then(({ data }) => {
-                if (data.username) { currentUser = data; renderUserAvatar(); }
+                if (data.username) {
+                    currentUser = data;
+                    renderUserAvatar();
+                    // Notify index.html that direct access status may have loaded
+                    window.dispatchEvent(new Event('auth:ready'));
+                }
             });
+        } else {
+            window.dispatchEvent(new Event('auth:ready'));
         }
         renderUserAvatar();
     }
@@ -405,7 +412,6 @@ const AUTH = (() => {
             currentUser = data;
             onAuthenticated();
         } else {
-            // No valid session — keep overlay visible, reset to step 1
             resetToUsernameStep();
         }
     }
@@ -416,7 +422,8 @@ const AUTH = (() => {
         trackPageView,
         trackPlayStart,
         trackPlayStop,
-        get user() { return currentUser; },
+        get user()         { return currentUser; },
+        get directAccess() { return !!(currentUser && currentUser.directAccess); },
     };
 })();
 
