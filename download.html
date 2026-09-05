@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flix Vision — Download</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+    --bg:#0a0a0c;--surface:#18181c;--surface2:#1f1f24;
+    --border:rgba(255,255,255,0.08);--text:#ffffff;--muted:#71717a;
+    --subtle:#a1a1aa;--accent:#e50914;--accent2:#ff4b2b;--radius:12px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* ── Nav ── */
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,12,0.92);backdrop-filter:blur(12px);z-index:100}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,#e50914,#ff4b2b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-logo i{font-size:1.4rem;color:#e50914;-webkit-text-fill-color:#e50914}
+.nav-link{color:var(--muted);font-size:0.88rem;text-decoration:none;transition:color 0.2s}
+.nav-link:hover{color:var(--text)}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:80px 20px 60px;max-width:760px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.3);color:#ff6b6b;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;padding:4px 14px;border-radius:20px;margin-bottom:24px}
+.hero h1{font-family:'Outfit',sans-serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.15;margin-bottom:20px}
+.hero h1 span{background:linear-gradient(135deg,#e50914,#ff4b2b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--subtle);max-width:580px;margin:0 auto 36px;line-height:1.7}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#e50914,#ff4b2b);color:#fff;padding:14px 32px;border-radius:10px;font-size:1rem;font-weight:700;text-decoration:none;transition:opacity 0.2s,transform 0.15s;box-shadow:0 8px 32px rgba(229,9,20,0.3)}
+.hero-cta:hover{opacity:0.9;transform:translateY(-1px)}
+
+/* ── Disclaimer ── */
+.disclaimer{background:rgba(234,179,8,0.07);border:1px solid rgba(234,179,8,0.2);border-radius:var(--radius);padding:20px 24px;max-width:760px;margin:0 auto 60px;font-size:0.83rem;color:#a1a1aa;line-height:1.7}
+.disclaimer strong{color:#fde047;font-weight:600}
+.disclaimer-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#fde047;margin-bottom:8px}
+
+/* ── Features ── */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto 70px;padding:0 20px}
+.feature{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:center}
+.feature i{font-size:1.5rem;color:var(--accent);margin-bottom:12px;display:block}
+.feature h3{font-size:0.92rem;font-weight:600;margin-bottom:6px}
+.feature p{font-size:0.8rem;color:var(--muted);line-height:1.5}
+
+/* ── Download section ── */
+.section{max-width:900px;margin:0 auto 70px;padding:0 20px}
+.section-title{font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:8px;text-align:center}
+.section-sub{text-align:center;color:var(--muted);font-size:0.88rem;margin-bottom:32px}
+
+/* ── OS tabs ── */
+.os-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.os-tab{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.os-tab:hover{border-color:rgba(229,9,20,0.4);color:var(--text)}
+.os-tab.active{background:rgba(229,9,20,0.1);border-color:rgba(229,9,20,0.5);color:#fff}
+.os-tab i{font-size:1rem}
+
+/* ── Instruction panels ── */
+.os-panel{display:none}
+.os-panel.active{display:block}
+.install-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.install-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.install-header i{font-size:1.2rem;color:var(--accent)}
+.install-header h3{font-size:1rem;font-weight:700}
+.install-header p{font-size:0.8rem;color:var(--muted);margin-top:2px}
+.steps{padding:24px;display:flex;flex-direction:column;gap:16px}
+.step{display:flex;gap:16px;align-items:flex-start}
+.step-num{background:linear-gradient(135deg,#e50914,#ff4b2b);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-content h4{font-size:0.9rem;font-weight:600;margin-bottom:4px}
+.step-content p{font-size:0.83rem;color:var(--subtle);line-height:1.6}
+.step-content a{color:#ff6b6b;text-decoration:none}
+.step-content a:hover{text-decoration:underline}
+.code{background:#0a0a0c;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:8px 12px;font-family:monospace;font-size:0.82rem;color:#86efac;margin-top:6px;display:block;word-break:break-all}
+.note{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:10px 14px;font-size:0.8rem;color:#a5b4fc;margin-top:8px;line-height:1.5}
+.download-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e50914,#ff4b2b);color:#fff;padding:10px 22px;border-radius:8px;font-size:0.88rem;font-weight:600;text-decoration:none;margin-top:8px;transition:opacity 0.2s}
+.download-btn:hover{opacity:0.88}
+.mobile-notice{background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:12px 16px;font-size:0.82rem;color:#86efac;margin-top:8px;line-height:1.6}
+
+/* ── FAQ ── */
+.faq{max-width:700px;margin:0 auto 70px;padding:0 20px}
+.faq-item{border-bottom:1px solid var(--border);padding:18px 0}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-size:0.92rem;font-weight:600;margin-bottom:8px;color:var(--text)}
+.faq-a{font-size:0.83rem;color:var(--muted);line-height:1.7}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--border);padding:28px 40px;text-align:center;font-size:0.78rem;color:var(--muted);line-height:1.8}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+
+@media(max-width:600px){
+    nav{padding:14px 20px}
+    .hero{padding:50px 20px 40px}
+    .steps{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-logo"><i class="fa-solid fa-play-circle"></i> Flix Vision</div>
+    <a href="#download" class="nav-link">Download</a>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+    <div class="hero-badge">Self-Hosted Software</div>
+    <h1>Your personal<br><span>media browser</span>,<br>your device.</h1>
+    <p>Flix Vision is a self-hosted media browser application. You download and run it entirely on your own device. We host nothing — all content is sourced and played by your own browser.</p>
+    <a href="#download" class="hero-cta"><i class="fa-solid fa-download"></i> Get Started</a>
+</section>
+
+<!-- ── Legal disclaimer ── -->
+<div class="disclaimer" style="padding:0 20px;margin-bottom:60px">
+<div style="max-width:760px;margin:0 auto;background:rgba(234,179,8,0.07);border:1px solid rgba(234,179,8,0.2);border-radius:12px;padding:20px 24px">
+<div class="disclaimer-title"><i class="fa-solid fa-triangle-exclamation"></i> &nbsp;Important Legal Notice</div>
+<p>Flix Vision is a <strong>self-hosted software application</strong>. We are a software distributor only. We do not host, store, transmit, or serve any media content whatsoever. When you use this software, your device directly accesses publicly available third-party embed services on the internet. We have no control over, affiliation with, or responsibility for any content accessed through those third-party services.</p>
+<br>
+<p>By downloading and using this software you acknowledge that: <strong>(1)</strong> you are solely responsible for your use of the software and any content you access; <strong>(2)</strong> you will comply with all applicable laws in your jurisdiction; <strong>(3)</strong> this software is provided as a personal media organization tool only. Use of this software to access content without appropriate rights in your jurisdiction may constitute copyright infringement for which you — not the software distributor — are solely liable.</p>
+</div>
+</div>
+
+<!-- ── Features ── -->
+<div class="features">
+    <div class="feature">
+        <i class="fa-solid fa-shield-halved"></i>
+        <h3>100% Private</h3>
+        <p>Runs entirely on your device. No usage data sent anywhere.</p>
+    </div>
+    <div class="feature">
+        <i class="fa-solid fa-bolt"></i>
+        <h3>No Subscriptions</h3>
+        <p>One-time access. No recurring charges, ever.</p>
+    </div>
+    <div class="feature">
+        <i class="fa-solid fa-laptop-mobile"></i>
+        <h3>All Devices</h3>
+        <p>Windows, Mac, Linux, Android, and iPhone.</p>
+    </div>
+    <div class="feature">
+        <i class="fa-solid fa-film"></i>
+        <h3>Huge Library</h3>
+        <p>Browses millions of titles using the TMDB database.</p>
+    </div>
+</div>
+
+<!-- ── Download / Setup ── -->
+<div class="section" id="download">
+    <h2 class="section-title">Get Flix Vision</h2>
+    <p class="section-sub">Choose your device below. Setup takes under 2 minutes.</p>
+
+    <!-- OS Tabs -->
+    <div class="os-tabs">
+        <button class="os-tab active" onclick="switchOS('windows')"><i class="fa-brands fa-windows"></i> Windows</button>
+        <button class="os-tab"        onclick="switchOS('mac')">    <i class="fa-brands fa-apple"></i> Mac</button>
+        <button class="os-tab"        onclick="switchOS('linux')">  <i class="fa-brands fa-linux"></i> Linux</button>
+        <button class="os-tab"        onclick="switchOS('android')"><i class="fa-brands fa-android"></i> Android</button>
+        <button class="os-tab"        onclick="switchOS('ios')">    <i class="fa-brands fa-apple"></i> iPhone / iPad</button>
+    </div>
+
+    <!-- Windows -->
+    <div class="os-panel active" id="os-windows">
+        <div class="install-card">
+            <div class="install-header">
+                <i class="fa-brands fa-windows"></i>
+                <div><h3>Windows</h3><p>Works on Windows 10 and 11</p></div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h4>Download Node.js (one-time, free)</h4>
+                        <p>Node.js is what runs the app. Download the LTS version and install it with default settings.</p>
+                        <a class="download-btn" href="https://nodejs.org/en/download" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Download Node.js</a>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h4>Download Flix Vision</h4>
+                        <p>Download the zip file and extract it anywhere on your computer — Desktop is fine.</p>
+                        <a class="download-btn" href="download/flix-vision-windows.zip"><i class="fa-solid fa-download"></i> Download for Windows</a>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>Run it</h4>
+                        <p>Inside the extracted folder, double-click <strong>run.bat</strong>. Your browser will open automatically with Flix Vision ready to use.</p>
+                        <div class="note">💡 Every time you want to use Flix Vision, just double-click run.bat again.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mac -->
+    <div class="os-panel" id="os-mac">
+        <div class="install-card">
+            <div class="install-header">
+                <i class="fa-brands fa-apple"></i>
+                <div><h3>Mac</h3><p>Works on macOS 11 Big Sur and newer</p></div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h4>Download Node.js (one-time, free)</h4>
+                        <p>Download the macOS LTS installer and run it.</p>
+                        <a class="download-btn" href="https://nodejs.org/en/download" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Download Node.js</a>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h4>Download Flix Vision</h4>
+                        <a class="download-btn" href="download/flix-vision-mac.zip"><i class="fa-solid fa-download"></i> Download for Mac</a>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>Extract and run</h4>
+                        <p>Extract the zip. Inside the folder, double-click <strong>start-mac.command</strong>.</p>
+                        <p style="margin-top:8px">If Mac says it can't be opened, go to <strong>System Settings → Privacy & Security</strong> and click <strong>"Allow Anyway"</strong> next to the blocked file. Then double-click it again.</p>
+                        <div class="note">💡 Every time you want to use Flix Vision, double-click start-mac.command.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Linux -->
+    <div class="os-panel" id="os-linux">
+        <div class="install-card">
+            <div class="install-header">
+                <i class="fa-brands fa-linux"></i>
+                <div><h3>Linux</h3><p>Works on Ubuntu, Debian, Fedora, Arch and others</p></div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h4>Install Node.js</h4>
+                        <p>Open a terminal and run:</p>
+                        <code class="code">sudo apt install nodejs</code>
+                        <p style="margin-top:8px">Or visit nodejs.org for other distros.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h4>Download Flix Vision</h4>
+                        <a class="download-btn" href="download/flix-vision-linux.zip"><i class="fa-solid fa-download"></i> Download for Linux</a>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>Extract and run</h4>
+                        <p>Extract the zip. In a terminal inside the folder run:</p>
+                        <code class="code">bash start-linux.sh</code>
+                        <div class="note">💡 Or double-click start-linux.sh in your file manager if it supports running shell scripts.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Android -->
+    <div class="os-panel" id="os-android">
+        <div class="install-card">
+            <div class="install-header">
+                <i class="fa-brands fa-android"></i>
+                <div><h3>Android</h3><p>Works directly in your browser — no install needed</p></div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h4>Open in Chrome or Firefox</h4>
+                        <p>On your Android device, open Chrome or Firefox and go to:</p>
+                        <code class="code">https://flix.thedevreal33.workers.dev</code>
+                        <p style="margin-top:8px">Log in with your username and PIN. The app runs directly in your browser — nothing to install.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h4>Add to Home Screen (optional)</h4>
+                        <p>In Chrome, tap the <strong>⋮ menu → Add to Home Screen</strong>. This makes it look and feel like a native app with a full-screen experience.</p>
+                        <div class="mobile-notice">✓ The app works fully in your mobile browser. Login, browse, and stream all work the same as desktop.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- iOS -->
+    <div class="os-panel" id="os-ios">
+        <div class="install-card">
+            <div class="install-header">
+                <i class="fa-brands fa-apple"></i>
+                <div><h3>iPhone &amp; iPad</h3><p>Works directly in Safari — no install needed</p></div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h4>Open in Safari</h4>
+                        <p>On your iPhone or iPad, open <strong>Safari</strong> and go to:</p>
+                        <code class="code">https://flix.thedevreal33.workers.dev</code>
+                        <p style="margin-top:8px">Log in with your username and PIN. Everything works in your browser.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h4>Add to Home Screen (optional)</h4>
+                        <p>Tap the <strong>Share button <i class="fa-solid fa-arrow-up-from-bracket"></i></strong> → <strong>Add to Home Screen</strong>. This gives you a full-screen app icon on your home screen.</p>
+                        <div class="mobile-notice">✓ Works fully in Safari on iPhone and iPad. Login, browse, and stream all work normally.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── FAQ ── -->
+<div class="faq">
+    <h2 class="section-title" style="margin-bottom:32px">Common Questions</h2>
+
+    <div class="faq-item">
+        <div class="faq-q">How do I get access?</div>
+        <div class="faq-a">Contact us directly. Once we add your username to the system you'll be able to log in and set your own 4-digit PIN on first use.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q">Do I need to pay again?</div>
+        <div class="faq-a">No. Access is a one-time arrangement. Your account stays active as long as you have it.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q">What is Node.js and is it safe?</div>
+        <div class="faq-a">Node.js is a free, open-source JavaScript runtime used by millions of developers worldwide. It's made by the Node.js Foundation and is completely safe. You can verify it at nodejs.org.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q">Does it work without internet?</div>
+        <div class="faq-a">No — an internet connection is required to browse titles (which come from the TMDB database) and to play content.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q">Can I use it on more than one device?</div>
+        <div class="faq-a">Yes, up to 3 devices simultaneously with the same account.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q">I forgot my PIN. What do I do?</div>
+        <div class="faq-a">On the login screen, click "Forgot your PIN?" and send a reset request. We'll reset it for you.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q">What content does this include?</div>
+        <div class="faq-a">Flix Vision is a media browser — it displays metadata (titles, posters, descriptions) from The Movie Database (TMDB). When you choose to play something, your browser connects directly to publicly available third-party embed services. We do not host, provide, or control any of that content.</div>
+    </div>
+</div>
+
+<footer>
+    <p>Flix Vision is independent software distributed as-is for personal use. We are not affiliated with any streaming service, studio, or content provider.</p>
+    <p style="margin-top:8px">All content metadata provided by <a href="https://www.themoviedb.org" target="_blank">The Movie Database (TMDB)</a>. Third-party streams are accessed directly by your browser and are not hosted or served by us.</p>
+</footer>
+
+<script>
+function switchOS(os) {
+    document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.os-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('os-' + os).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+// Auto-detect OS and pre-select the right tab
+(function() {
+    const ua = navigator.userAgent.toLowerCase();
+    let os = 'windows';
+    if (/iphone|ipad|ipod/.test(ua))      os = 'ios';
+    else if (/android/.test(ua))           os = 'android';
+    else if (/mac/.test(ua))               os = 'mac';
+    else if (/linux/.test(ua))             os = 'linux';
+    if (os !== 'windows') {
+        document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.os-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('os-' + os)?.classList.add('active');
+        const tabs = document.querySelectorAll('.os-tab');
+        const map = {windows:0, mac:1, linux:2, android:3, ios:4};
+        tabs[map[os]]?.classList.add('active');
+    }
+})();
+</script>
+</body>
+</html>

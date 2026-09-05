@@ -1,0 +1,8 @@
+base.apk
+apk/
+data/
+node_modules/
+.wrangler/
+
+# commit.bat contains your GitHub token — never commit it
+commit.bat

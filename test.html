@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flix Vision — API Test Suite</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:monospace;background:#0a0a0c;color:#e4e4e7;padding:20px;font-size:13px}
+h1{color:#e50914;font-size:1.3rem;margin-bottom:4px}
+p.sub{color:#71717a;margin-bottom:20px;font-size:0.85rem}
+.card{background:#18181c;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px;margin-bottom:14px}
+.card h2{font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;color:#71717a;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+input{background:#0a0a0c;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:7px 10px;color:#fff;font-size:0.85rem;font-family:monospace;flex:1;min-width:140px;outline:none}
+input:focus{border-color:#e50914}
+button{background:#e50914;border:none;border-radius:6px;padding:7px 14px;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:monospace}
+button:hover{opacity:0.85}
+button.ghost{background:rgba(255,255,255,0.07);color:#a1a1aa}
+button.ghost:hover{background:rgba(255,255,255,0.12);color:#fff}
+.result{margin-top:10px;background:#0a0a0c;border-radius:6px;padding:10px;font-size:0.8rem;line-height:1.6;white-space:pre-wrap;word-break:break-all;border-left:3px solid #3f3f46;display:none}
+.result.ok{border-left-color:#22c55e}
+.result.err{border-left-color:#ef4444}
+.result.info{border-left-color:#6366f1}
+.status{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;margin-right:6px}
+.s200{background:rgba(34,197,94,0.2);color:#86efac}
+.s400,.s401,.s403,.s404,.s500{background:rgba(239,68,68,0.2);color:#fca5a5}
+.s0{background:rgba(234,179,8,0.2);color:#fde047}
+hr{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.tag{display:inline-block;background:rgba(99,102,241,0.2);color:#a5b4fc;padding:1px 7px;border-radius:4px;font-size:0.7rem;margin-right:4px}
+</style>
+</head>
+<body>
+
+<h1>🔧 Flix Vision — API Test Suite</h1>
+<p class="sub">Tests every endpoint on <strong>https://devsapps.org/flix/api.php</strong></p>
+
+<!-- API URL override -->
+<div class="card">
+    <h2>⚙️ Configuration</h2>
+    <div class="row">
+        <input id="cfg-api" value="https://devsapps.org/flix/api.php" placeholder="API URL">
+        <button onclick="runAll()">▶ Run All Tests</button>
+        <button class="ghost" onclick="clearAll()">Clear</button>
+    </div>
+    <div id="cfg-result" class="result info"></div>
+</div>
+
+<div class="grid2">
+
+<!-- 1. CORS + reachability -->
+<div class="card">
+    <h2><span class="tag">1</span> Reachability + CORS</h2>
+    <p style="color:#71717a;font-size:0.8rem;margin-bottom:8px">Tests that api.php responds and sends correct CORS headers for this origin.</p>
+    <button onclick="testReach()">Test</button>
+    <div id="r-reach" class="result"></div>
+</div>
+
+<!-- 2. me (unauthenticated) -->
+<div class="card">
+    <h2><span class="tag">2</span> GET me (unauthenticated)</h2>
+    <p style="color:#71717a;font-size:0.8rem;margin-bottom:8px">Should return 401. Confirms PHP + DB connected.</p>
+    <button onclick="testMe()">Test</button>
+    <div id="r-me" class="result"></div>
+</div>
+
+<!-- 3. check-username -->
+<div class="card">
+    <h2><span class="tag">3</span> check-username</h2>
+    <div class="row">
+        <input id="t3-user" placeholder="username to check" value="testuser">
+        <button onclick="testCheckUser()">Test</button>
+    </div>
+    <div id="r-check-user" class="result"></div>
+</div>
+
+<!-- 4. Admin login -->
+<div class="card">
+    <h2><span class="tag">4</span> Admin — admin-stats</h2>
+    <div class="row">
+        <input id="t4-pw" type="password" placeholder="admin password" value="1579">
+        <button onclick="testAdminStats()">Test</button>
+    </div>
+    <p style="color:#71717a;font-size:0.75rem;margin-top:6px">Uses this password for all subsequent admin tests.</p>
+    <div id="r-admin-stats" class="result"></div>
+</div>
+
+<!-- 5. admin-users list -->
+<div class="card">
+    <h2><span class="tag">5</span> Admin — list users</h2>
+    <button onclick="testAdminUsers()">Test</button>
+    <div id="r-admin-users" class="result"></div>
+</div>
+
+<!-- 6. admin-add-user -->
+<div class="card">
+    <h2><span class="tag">6</span> Admin — add user</h2>
+    <div class="row">
+        <input id="t6-user" placeholder="new username" value="testuser_auto">
+        <button onclick="testAddUser()">Test</button>
+    </div>
+    <div id="r-add-user" class="result"></div>
+</div>
+
+<!-- 7. setup-pin -->
+<div class="card">
+    <h2><span class="tag">7</span> setup-pin (first login)</h2>
+    <div class="row">
+        <input id="t7-user" placeholder="username" value="testuser_auto">
+        <input id="t7-pin" placeholder="4-digit PIN" value="1234" maxlength="4">
+        <button onclick="testSetupPin()">Test</button>
+    </div>
+    <div id="r-setup-pin" class="result"></div>
+</div>
+
+<!-- 8. login -->
+<div class="card">
+    <h2><span class="tag">8</span> login</h2>
+    <div class="row">
+        <input id="t8-user" placeholder="username" value="testuser_auto">
+        <input id="t8-pin" placeholder="PIN" value="1234" maxlength="4">
+        <button onclick="testLogin()">Test</button>
+    </div>
+    <div id="r-login" class="result"></div>
+</div>
+
+<!-- 9. me (authenticated) -->
+<div class="card">
+    <h2><span class="tag">9</span> GET me (after login)</h2>
+    <p style="color:#71717a;font-size:0.8rem;margin-bottom:8px">Should return 200 with username. Requires test 8 to have run first.</p>
+    <button onclick="testMeAuth()">Test</button>
+    <div id="r-me-auth" class="result"></div>
+</div>
+
+<!-- 10. log-activity -->
+<div class="card">
+    <h2><span class="tag">10</span> log-activity</h2>
+    <p style="color:#71717a;font-size:0.8rem;margin-bottom:8px">Requires active session (run test 8 first).</p>
+    <button onclick="testActivity()">Test</button>
+    <div id="r-activity" class="result"></div>
+</div>
+
+<!-- 11. change-pin -->
+<div class="card">
+    <h2><span class="tag">11</span> change-pin</h2>
+    <div class="row">
+        <input id="t11-cur" placeholder="current PIN" value="1234" maxlength="4">
+        <input id="t11-new" placeholder="new PIN" value="5678" maxlength="4">
+        <button onclick="testChangePin()">Test</button>
+    </div>
+    <div id="r-change-pin" class="result"></div>
+</div>
+
+<!-- 12. request-reset -->
+<div class="card">
+    <h2><span class="tag">12</span> request-reset</h2>
+    <div class="row">
+        <input id="t12-user" placeholder="username" value="testuser_auto">
+        <button onclick="testRequestReset()">Test</button>
+    </div>
+    <div id="r-request-reset" class="result"></div>
+</div>
+
+<!-- 13. admin-requests -->
+<div class="card">
+    <h2><span class="tag">13</span> Admin — pin reset requests</h2>
+    <button onclick="testAdminRequests()">Test</button>
+    <div id="r-admin-requests" class="result"></div>
+</div>
+
+<!-- 14. admin-sessions -->
+<div class="card">
+    <h2><span class="tag">14</span> Admin — sessions</h2>
+    <button onclick="testAdminSessions()">Test</button>
+    <div id="r-admin-sessions" class="result"></div>
+</div>
+
+<!-- 15. admin-set-pin -->
+<div class="card">
+    <h2><span class="tag">15</span> Admin — set PIN for user</h2>
+    <div class="row">
+        <input id="t15-user" placeholder="username" value="testuser_auto">
+        <input id="t15-pin" placeholder="new PIN (blank=1234)" value="9999" maxlength="4">
+        <button onclick="testAdminSetPin()">Test</button>
+    </div>
+    <div id="r-admin-set-pin" class="result"></div>
+</div>
+
+<!-- 16. logout -->
+<div class="card">
+    <h2><span class="tag">16</span> logout</h2>
+    <button onclick="testLogout()">Test</button>
+    <div id="r-logout" class="result"></div>
+</div>
+
+<!-- 17. admin-change-password -->
+<div class="card">
+    <h2><span class="tag">17</span> Admin — change password</h2>
+    <div class="row">
+        <input id="t17-cur" type="password" placeholder="current password" value="1579">
+        <input id="t17-new" type="password" placeholder="new password">
+        <button onclick="testChangeAdminPw()">Test</button>
+    </div>
+    <p style="color:#fde047;font-size:0.75rem;margin-top:6px">⚠ Only run this if you actually want to change the password.</p>
+    <div id="r-change-pw" class="result"></div>
+</div>
+
+<!-- 18. admin-delete-user (cleanup) -->
+<div class="card">
+    <h2><span class="tag">18</span> Admin — delete test user (cleanup)</h2>
+    <div class="row">
+        <input id="t18-user" placeholder="username to delete" value="testuser_auto">
+        <button onclick="testDeleteUser()">Test</button>
+    </div>
+    <div id="r-delete-user" class="result"></div>
+</div>
+
+</div><!-- /grid2 -->
+
+<!-- Full log -->
+<div class="card" style="margin-top:14px">
+    <h2>📋 Full Test Log</h2>
+    <div id="full-log" class="result info" style="display:block;max-height:400px;overflow-y:auto"></div>
+</div>
+
+<script>
+const getAPI  = () => document.getElementById('cfg-api').value.trim();
+const getAdminPw = () => document.getElementById('t4-pw').value.trim();
+
+let lastAddedUserId = null;
+
+function show(id, status, data, extra = '') {
+    const el = document.getElementById(id);
+    const cls = status === 200 || status === 201 ? 'ok' : status === 0 ? '' : 'err';
+    const scls = status === 200 || status === 201 ? 's200' : status === 0 ? 's0' : `s${status}`;
+    el.className = `result ${cls}`;
+    el.style.display = 'block';
+    el.innerHTML = `<span class="status ${scls}">${status === 0 ? 'NET ERR' : status}</span>${extra}\n${JSON.stringify(data, null, 2)}`;
+    log(`[${id}] ${status} — ${extra || ''} ${JSON.stringify(data).substring(0, 120)}`);
+}
+
+function log(msg) {
+    const el = document.getElementById('full-log');
+    el.textContent += new Date().toLocaleTimeString() + ' ' + msg + '\n';
+    el.scrollTop = el.scrollHeight;
+}
+
+function clearAll() {
+    document.querySelectorAll('.result').forEach(el => { el.style.display='none'; el.textContent=''; });
+    document.getElementById('full-log').textContent = '';
+}
+
+async function call(action, body = null, method = 'POST', adminPw = null) {
+    const url = new URL(getAPI());
+    url.searchParams.set('action', action);
+    const opts = {
+        method,
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    };
+    if (adminPw !== null) opts.headers['Authorization'] = `Bearer ${adminPw}`;
+    if (body && method !== 'GET') opts.body = JSON.stringify(body);
+    try {
+        const res  = await fetch(url.toString(), opts);
+        const data = await res.json().catch(() => ({ raw: 'non-JSON response' }));
+        return { status: res.status, data, headers: res.headers };
+    } catch (e) {
+        return { status: 0, data: { error: e.message }, headers: null };
+    }
+}
+
+// ── Individual tests ────────────────────────────────────────────────────────
+
+async function testReach() {
+    log('Testing reachability...');
+    const { status, data, headers } = await call('me', null, 'GET');
+    const cors = headers ? headers.get('access-control-allow-origin') : 'N/A (network error)';
+    const credH = headers ? headers.get('access-control-allow-credentials') : 'N/A';
+    const extra = `CORS origin: ${cors} | credentials: ${credH}`;
+    show('r-reach', status, data, extra);
+    const cfgEl = document.getElementById('cfg-result');
+    cfgEl.style.display = 'block';
+    cfgEl.className = 'result ' + (status !== 0 ? 'ok' : 'err');
+    cfgEl.textContent = status !== 0
+        ? `✓ API reachable — HTTP ${status}\nCORS Allow-Origin: ${cors}\nCORS Allow-Credentials: ${credH}`
+        : `✗ Could not reach API at ${getAPI()}\nError: ${data.error}\n\nCheck:\n1. PHP files uploaded to /devsapps.org/flix/ on x10hosting\n2. https://devsapps.org/flix/api.php?action=me loads in browser`;
+}
+
+async function testMe() {
+    const { status, data } = await call('me', null, 'GET');
+    show('r-me', status, data, status === 401 ? '✓ Correct — not authenticated' : status === 200 ? '✓ Already has session' : '✗ Unexpected');
+}
+
+async function testCheckUser() {
+    const username = document.getElementById('t3-user').value.trim();
+    const { status, data } = await call('check-username', { username });
+    show('r-check-user', status, data, `Checked: ${username}`);
+}
+
+async function testAdminStats() {
+    const pw = getAdminPw();
+    const { status, data } = await call('admin-stats', null, 'GET', pw);
+    show('r-admin-stats', status, data, status === 200 ? '✓ Admin auth working' : status === 403 ? '✗ Wrong password' : '✗ Server error');
+}
+
+async function testAdminUsers() {
+    const { status, data } = await call('admin-users', null, 'GET', getAdminPw());
+    show('r-admin-users', status, data, `Found ${Array.isArray(data) ? data.length : '?'} users`);
+}
+
+async function testAddUser() {
+    const username = document.getElementById('t6-user').value.trim();
+    const { status, data } = await call('admin-add-user', { username }, 'POST', getAdminPw());
+    if (status === 201) lastAddedUserId = data.id;
+    show('r-add-user', status, data, status === 201 ? `✓ Created user id=${data.id}` : status === 409 ? '⚠ User already exists' : '✗ Failed');
+}
+
+async function testSetupPin() {
+    const username = document.getElementById('t7-user').value.trim();
+    const pin      = document.getElementById('t7-pin').value.trim();
+    const { status, data } = await call('setup-pin', { username, pin });
+    show('r-setup-pin', status, data, status === 200 ? '✓ PIN set + auto-logged in' : `✗ ${data.error}`);
+}
+
+async function testLogin() {
+    const username = document.getElementById('t8-user').value.trim();
+    const pin      = document.getElementById('t8-pin').value.trim();
+    const { status, data } = await call('login', { username, pin });
+    show('r-login', status, data, status === 200 ? '✓ Logged in — session cookie set' : `✗ ${data.error}`);
+}
+
+async function testMeAuth() {
+    const { status, data } = await call('me', null, 'GET');
+    show('r-me-auth', status, data, status === 200 ? `✓ Session active as: ${data.username}` : '✗ No active session — run test 8 first');
+}
+
+async function testActivity() {
+    const { status, data } = await call('log-activity', { type: 'page_view', detail: { page: 'test-suite' } });
+    show('r-activity', status, data, status === 200 ? '✓ Activity logged' : `✗ ${data.error}`);
+}
+
+async function testChangePin() {
+    const currentPin = document.getElementById('t11-cur').value.trim();
+    const newPin     = document.getElementById('t11-new').value.trim();
+    const { status, data } = await call('change-pin', { currentPin, newPin });
+    show('r-change-pin', status, data, status === 200 ? '✓ PIN changed' : `✗ ${data.error}`);
+}
+
+async function testRequestReset() {
+    const username = document.getElementById('t12-user').value.trim();
+    const { status, data } = await call('request-reset', { username, message: 'Automated test reset request' });
+    show('r-request-reset', status, data, status === 200 ? '✓ Reset request submitted' : `✗ ${data.error}`);
+}
+
+async function testAdminRequests() {
+    const { status, data } = await call('admin-requests', null, 'GET', getAdminPw());
+    show('r-admin-requests', status, data, `${Array.isArray(data) ? data.length : '?'} requests`);
+}
+
+async function testAdminSessions() {
+    const { status, data } = await call('admin-sessions', null, 'GET', getAdminPw());
+    show('r-admin-sessions', status, data, `${Array.isArray(data) ? data.length : '?'} active sessions`);
+}
+
+async function testAdminSetPin() {
+    const username = document.getElementById('t15-user').value.trim();
+    const pin      = document.getElementById('t15-pin').value.trim();
+    // First get user ID
+    const { data: users } = await call('admin-users', null, 'GET', getAdminPw());
+    const user = Array.isArray(users) ? users.find(u => u.username.toLowerCase() === username.toLowerCase()) : null;
+    if (!user) { show('r-admin-set-pin', 404, { error: `User "${username}" not found in users list` }, '✗'); return; }
+    const { status, data } = await call('admin-set-pin', { userId: user.id, pin: pin || null }, 'POST', getAdminPw());
+    show('r-admin-set-pin', status, data, status === 200 ? `✓ PIN set to ${data.pin} for ${username}` : `✗ ${data.error}`);
+}
+
+async function testLogout() {
+    const { status, data } = await call('logout', {});
+    show('r-logout', status, data, status === 200 ? '✓ Logged out — session cookie cleared' : `✗ ${data.error}`);
+}
+
+async function testChangeAdminPw() {
+    const cur = document.getElementById('t17-cur').value.trim();
+    const nw  = document.getElementById('t17-new').value.trim();
+    if (!nw) { show('r-change-pw', 400, { error: 'Enter a new password first' }, '✗'); return; }
+    // Use current pw to auth
+    const { status, data } = await call('admin-change-password', { newPassword: nw }, 'POST', cur);
+    show('r-change-pw', status, data, status === 200 ? '✓ Password changed — update test 4 field' : `✗ ${data.error}`);
+    if (status === 200) document.getElementById('t4-pw').value = nw;
+}
+
+async function testDeleteUser() {
+    const username = document.getElementById('t18-user').value.trim();
+    const { data: users } = await call('admin-users', null, 'GET', getAdminPw());
+    const user = Array.isArray(users) ? users.find(u => u.username.toLowerCase() === username.toLowerCase()) : null;
+    if (!user) { show('r-delete-user', 404, { error: `User "${username}" not found` }, '✗'); return; }
+    const { status, data } = await call('admin-delete-user', { userId: user.id }, 'POST', getAdminPw());
+    show('r-delete-user', status, data, status === 200 ? `✓ Deleted user: ${username}` : `✗ ${data.error}`);
+}
+
+// ── Run all ────────────────────────────────────────────────────────────────
+async function runAll() {
+    clearAll();
+    log('=== Starting full test suite ===');
+    await testReach();
+    await new Promise(r => setTimeout(r, 300));
+    await testMe();
+    await new Promise(r => setTimeout(r, 300));
+    await testAdminStats();
+    await new Promise(r => setTimeout(r, 300));
+    await testAdminUsers();
+    await new Promise(r => setTimeout(r, 300));
+    await testAddUser();
+    await new Promise(r => setTimeout(r, 300));
+    await testSetupPin();
+    await new Promise(r => setTimeout(r, 300));
+    await testMeAuth();
+    await new Promise(r => setTimeout(r, 300));
+    await testActivity();
+    await new Promise(r => setTimeout(r, 300));
+    await testAdminRequests();
+    await new Promise(r => setTimeout(r, 300));
+    await testAdminSessions();
+    await new Promise(r => setTimeout(r, 300));
+    await testAdminSetPin();
+    await new Promise(r => setTimeout(r, 300));
+    await testLogout();
+    await new Promise(r => setTimeout(r, 300));
+    await testDeleteUser();
+    log('=== Test suite complete ===');
+}
+</script>
+</body>
+</html>

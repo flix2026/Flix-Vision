@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0a0a0c"/>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e50914"/>
+      <stop offset="100%" stop-color="#ff4b2b"/>
+    </linearGradient>
+  </defs>
+  <!-- Play triangle -->
+  <polygon points="180,140 180,372 380,256" fill="url(#g)"/>
+</svg>

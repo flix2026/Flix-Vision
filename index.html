@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flix</title>
+    <meta name="description" content="Personal media browser — self-hosted">
+    <meta name="theme-color" content="#0a0a0c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Flix Vision">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-play-circle gradient-text"></i>
+            <span class="gradient-text">Flix</span>
+        </div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <nav class="nav-links" id="nav-links">
+            <button class="nav-btn active" data-tab="home">Home</button>
+            <button class="nav-btn" data-tab="movies">Movies</button>
+            <button class="nav-btn" data-tab="tv">TV Shows</button>
+            <button class="nav-btn" data-tab="anime">Anime</button>
+            <button class="nav-btn" data-tab="theaters">In Theaters</button>
+            <button class="nav-btn" data-tab="top_rated">Top Rated</button>
+            <button class="nav-btn" data-tab="upcoming">Upcoming</button>
+            <button class="nav-btn" data-tab="airing">Airing Today</button>
+        </nav>
+        <div class="search-container">
+            <i class="fa-solid fa-search search-icon"></i>
+            <input type="text" id="search-input" placeholder="Search movies, shows...">
+        </div>
+
+        <!-- User menu — hidden until auth confirms a session -->
+        <div class="user-menu-wrap">
+            <button class="user-avatar-btn" id="user-avatar-btn" style="display:none;" aria-label="Account" aria-haspopup="true" aria-expanded="false"></button>
+            <div class="user-dropdown" id="user-dropdown" role="menu">
+                <div class="user-dropdown-header">
+                    <div class="user-dropdown-name" id="dropdown-username"></div>
+                    <div class="user-dropdown-sub" id="dropdown-sub">Signed in</div>
+                </div>
+                <button class="user-dropdown-item" id="dropdown-settings" role="menuitem">
+                    <i class="fa-solid fa-gear"></i> Account Settings
+                </button>
+                <button class="user-dropdown-item danger" id="dropdown-logout" role="menuitem">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 id="hero-title" class="skeleton-text">Loading...</h1>
+            <p id="hero-desc" class="skeleton-text">Please wait while we fetch the latest trending content.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" id="hero-play" disabled>
+                    <i class="fa-solid fa-play"></i> Watch Now
+                </button>
+                <button class="btn btn-secondary" id="hero-info" disabled>
+                    <i class="fa-solid fa-info-circle"></i> More Info
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="content-container">
+        <div class="section-header">
+            <h2 id="section-title">Trending Now</h2>
+            <div class="filters" id="content-filters" style="display: none;">
+                <select id="filter-genre">
+                    <option value="">All Genres</option>
+                </select>
+                <select id="filter-year">
+                    <option value="">All Years</option>
+                </select>
+                <select id="filter-sort">
+                    <option value="popularity.desc">Most Popular</option>
+                    <option value="popularity.asc">Least Popular</option>
+                    <option value="vote_average.desc">Highest Rated</option>
+                    <option value="vote_average.asc">Lowest Rated</option>
+                    <option value="vote_count.desc">Most Voted</option>
+                    <option value="vote_count.asc">Least Voted</option>
+                    <option value="release_date.desc">Newest</option>
+                    <option value="release_date.asc">Oldest</option>
+                    <option value="revenue.desc">Highest Revenue</option>
+                    <option value="revenue.asc">Lowest Revenue</option>
+                    <option value="original_title.asc">Title A–Z</option>
+                    <option value="original_title.desc">Title Z–A</option>
+                </select>
+            </div>
+            <select id="filter-columns" class="mobile-only">
+                <option value="2">2 per row</option>
+                <option value="1">1 per row</option>
+                <option value="3">3 per row</option>
+                <option value="4">4 per row</option>
+            </select>
+        </div>
+
+        <div class="media-grid" id="media-grid"></div>
+
+        <div class="loader-container" id="infinite-loader" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+    </main>
+
+    <!-- Video Player Modal -->
+    <div class="player-modal" id="player-modal">
+        <div class="player-modal-content">
+            <div class="player-header">
+                <h3 id="player-title">Now Playing</h3>
+                <div class="server-selector">
+                    <label for="server-dropdown">Source:</label>
+                    <select id="server-dropdown">
+                        <option value="vidsrc">VidSrc</option>
+                        <option value="vidsrc2">VidSrc 2</option>
+                        <option value="vidsrc3">VidSrc 3</option>
+                        <option value="smashy">SmashyStream</option>
+                        <option value="autoembed" selected>AutoEmbed</option>
+                        <option value="multiembed">MultiEmbed</option>
+                        <option value="moflix">Moflix</option>
+                    </select>
+                </div>
+                <div class="adblock-toggle-container">
+                    <label for="adblock-toggle" title="Blocks pop-up ad tabs by intercepting window.open inside the player">Ad Blocker:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="adblock-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="tv-selector" id="tv-selector" style="display: none;">
+                    <label for="season-dropdown">S:</label>
+                    <select id="season-dropdown"></select>
+                    <label for="episode-dropdown">E:</label>
+                    <select id="episode-dropdown"></select>
+                </div>
+                <button class="close-btn" id="close-player">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="player-wrapper">
+                <div class="upnext-toast" id="upnext-toast">
+                    <div class="upnext-label">Up Next</div>
+                    <div class="upnext-title" id="upnext-title"></div>
+                    <div class="upnext-bar-wrap">
+                        <div class="upnext-bar" id="upnext-bar"></div>
+                    </div>
+                    <div class="upnext-actions">
+                        <button class="upnext-btn play-now" id="upnext-playnow">Play Now</button>
+                        <button class="upnext-btn cancel" id="upnext-cancel">Cancel</button>
+                    </div>
+                </div>
+                <iframe id="video-iframe" src="" frameborder="0" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="details-modal" id="details-modal">
+        <div class="details-backdrop" id="details-backdrop"></div>
+        <div class="details-content">
+            <div class="details-scrollable">
+                <div class="details-hero" id="details-hero">
+                    <button class="close-details" id="close-details">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <div class="details-info">
+                    <h2 id="details-title">Title</h2>
+                    <div class="details-meta" id="details-meta"></div>
+                    <p class="details-overview" id="details-overview">Overview</p>
+                    <div class="details-buttons">
+                        <button class="btn btn-primary" id="details-play-btn">
+                            <i class="fa-solid fa-play"></i> Play
+                        </button>
+                        <button class="btn btn-secondary" id="details-trailer-btn" style="display:none;">
+                            <i class="fa-brands fa-youtube"></i> Trailer
+                        </button>
+                    </div>
+                    <!-- Watch Providers -->
+                    <div id="details-providers" class="details-section" style="display:none;">
+                        <h4>Where to Watch</h4>
+                        <div id="details-providers-list" class="providers-list"></div>
+                    </div>
+                    <!-- Cast -->
+                    <div id="details-cast-section" class="details-section" style="display:none;">
+                        <h4>Cast</h4>
+                        <div id="details-cast" class="cast-list"></div>
+                    </div>
+                    <!-- Recommendations -->
+                    <div id="details-recs-section" class="details-section" style="display:none;">
+                        <h4>More Like This</h4>
+                        <div id="details-recs" class="recs-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trailer Modal -->
+    <div class="trailer-modal" id="trailer-modal">
+        <div class="trailer-backdrop" id="trailer-backdrop"></div>
+        <div class="trailer-content">
+            <button class="close-details" id="close-trailer"><i class="fa-solid fa-times"></i></button>
+            <div class="player-wrapper">
+                <iframe id="trailer-iframe" src="" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Auth overlay — blocks page until login confirmed ──────────────── -->
+    <div id="auth-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <div class="auth-card" id="auth-card">
+            <div class="auth-logo">
+                <i class="fa-solid fa-play-circle"></i>
+                <span>Flix</span>
+            </div>
+
+            <!-- Main login form -->
+            <div id="auth-main-panel">
+                <h2 id="auth-title">Welcome to Flix</h2>
+                <p class="auth-subtitle" id="auth-subtitle">Enter your username to continue</p>
+
+                <div class="auth-error" id="auth-error" role="alert"></div>
+                <div class="auth-success" id="auth-success" role="status"></div>
+
+                <div class="auth-field">
+                    <label for="auth-username">Username</label>
+                    <input type="text" id="auth-username" placeholder="Your username"
+                           autocomplete="username" spellcheck="false">
+                </div>
+
+                <div class="auth-field" style="display:none;">
+                    <label for="auth-pin">PIN</label>
+                    <input type="password" id="auth-pin" class="pin-input"
+                           maxlength="4" inputmode="numeric" placeholder="••••"
+                           autocomplete="current-password">
+                </div>
+
+                <div class="auth-field" style="display:none;">
+                    <label for="auth-confirm-pin">Confirm PIN</label>
+                    <input type="password" id="auth-confirm-pin" class="pin-input"
+                           maxlength="4" inputmode="numeric" placeholder="••••"
+                           autocomplete="new-password">
+                </div>
+
+                <button class="auth-btn auth-btn-primary" id="auth-submit">Continue</button>
+
+                <button class="auth-link-btn" id="show-reset-btn" type="button">
+                    Forgot your PIN? Request a reset
+                </button>
+            </div>
+
+            <!-- PIN reset request panel -->
+            <div id="auth-reset-panel">
+                <div class="auth-divider">Request PIN Reset</div>
+                <div class="auth-field">
+                    <label for="reset-username">Username</label>
+                    <input type="text" id="reset-username" placeholder="Your username" autocomplete="off">
+                </div>
+                <div class="auth-field">
+                    <label for="reset-message">Message to admin <span style="color:#52525b;font-size:0.75em;">(optional)</span></label>
+                    <input type="text" id="reset-message" placeholder="e.g. I forgot my PIN">
+                </div>
+                <button class="auth-btn auth-btn-primary" id="reset-submit">Send Request</button>
+                <button class="auth-btn auth-btn-ghost" id="back-to-login" type="button">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Sign In
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Account settings modal ─────────────────────────────────────────── -->
+    <div id="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+        <div class="account-modal-card">
+            <div class="account-modal-header">
+                <h3 id="account-modal-title">Account Settings</h3>
+                <button class="account-modal-close" id="account-modal-close" aria-label="Close">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="account-modal-body">
+
+                <!-- Account info -->
+                <div class="account-section">
+                    <div class="account-section-title">Your Account</div>
+                    <div class="account-info-row">
+                        <span class="account-info-label">Username</span>
+                        <span class="account-info-value" id="acct-username">—</span>
+                    </div>
+                </div>
+
+                <!-- Change PIN -->
+                <div class="account-section">
+                    <div class="account-section-title">Change PIN</div>
+
+                    <div class="auth-error" id="acct-pin-error" role="alert"></div>
+                    <div class="auth-success" id="acct-pin-success" role="status"></div>
+
+                    <div class="auth-field">
+                        <label for="acct-current-pin">Current PIN</label>
+                        <input type="password" id="acct-current-pin" class="pin-input"
+                               maxlength="4" inputmode="numeric" placeholder="••••"
+                               autocomplete="current-password">
+                    </div>
+                    <div class="auth-field">
+                        <label for="acct-new-pin">New PIN</label>
+                        <input type="password" id="acct-new-pin" class="pin-input"
+                               maxlength="4" inputmode="numeric" placeholder="••••"
+                               autocomplete="new-password">
+                    </div>
+                    <div class="auth-field">
+                        <label for="acct-confirm-pin">Confirm New PIN</label>
+                        <input type="password" id="acct-confirm-pin" class="pin-input"
+                               maxlength="4" inputmode="numeric" placeholder="••••"
+                               autocomplete="new-password">
+                    </div>
+                    <button class="auth-btn auth-btn-primary" id="acct-change-pin-btn">Update PIN</button>
+                </div>
+
+                <!-- Request PIN reset -->
+                <div class="account-section">
+                    <div class="account-section-title">Need Help?</div>
+                    <p style="font-size:0.82rem;color:#71717a;margin-bottom:12px;line-height:1.5;">
+                        If you forgot your PIN, send a reset request to the admin.
+                    </p>
+                    <button class="auth-btn auth-btn-ghost" id="acct-request-reset-btn" type="button">
+                        <i class="fa-solid fa-envelope"></i> Request PIN Reset
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Self-host required modal (shown on cloud version when user tries to play) ── -->
+    <div id="selfhost-modal" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(10,10,12,0.96);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px">
+        <div style="background:#18181c;border:1px solid rgba(255,255,255,0.1);border-radius:16px;width:100%;max-width:600px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.7)">
+            <!-- Header -->
+            <div style="padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+                <div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                        <i class="fa-solid fa-circle-info" style="color:#e50914;font-size:1.2rem"></i>
+                        <h2 style="font-family:'Outfit',sans-serif;font-size:1.15rem;font-weight:700">One more step to watch</h2>
+                    </div>
+                    <p style="font-size:0.83rem;color:#a1a1aa;line-height:1.6;max-width:480px">For legal compliance, playback requires the app to run locally on your own device. This takes under 2 minutes to set up and only needs to be done once.</p>
+                </div>
+                <button onclick="closeSelfhostModal()" style="background:none;border:none;color:#71717a;font-size:1.1rem;cursor:pointer;padding:4px;flex-shrink:0;margin-top:-2px"><i class="fa-solid fa-times"></i></button>
+            </div>
+
+            <!-- Legal notice -->
+            <div style="margin:16px 28px;background:rgba(234,179,8,0.07);border:1px solid rgba(234,179,8,0.18);border-radius:8px;padding:12px 16px;font-size:0.78rem;color:#a1a1aa;line-height:1.6">
+                <strong style="color:#fde047">Legal Notice:</strong> Flix Vision is self-hosted software. We do not host or serve any media content. When you run the app locally, your own browser connects directly to third-party embed services. You are solely responsible for compliance with applicable laws in your jurisdiction.
+            </div>
+
+            <!-- OS tabs -->
+            <div style="padding:0 28px">
+                <p style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:#71717a;margin-bottom:10px">Choose your device:</p>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px" id="sh-tabs">
+                    <button class="sh-tab active" onclick="switchSH('windows',this)"><i class="fa-brands fa-windows"></i> Windows</button>
+                    <button class="sh-tab"        onclick="switchSH('mac',this)">    <i class="fa-brands fa-apple"></i> Mac</button>
+                    <button class="sh-tab"        onclick="switchSH('linux',this)">  <i class="fa-brands fa-linux"></i> Linux</button>
+                    <button class="sh-tab"        onclick="switchSH('android',this)"><i class="fa-brands fa-android"></i> Android</button>
+                    <button class="sh-tab"        onclick="switchSH('ios',this)">    <i class="fa-brands fa-apple"></i> iPhone</button>
+                </div>
+
+                <!-- Windows -->
+                <div class="sh-panel active" id="sh-windows">
+                    <div class="sh-step"><span class="sh-n">1</span><div><strong>Install Node.js</strong> (free, one-time) — <a href="https://nodejs.org" target="_blank" rel="noopener">nodejs.org</a> → click LTS → install with defaults</div></div>
+                    <div class="sh-step"><span class="sh-n">2</span><div><strong>Download Flix Vision</strong> → <a href="download/flix-vision-windows.zip"><strong>flix-vision-windows.zip</strong></a> → extract anywhere</div></div>
+                    <div class="sh-step"><span class="sh-n">3</span><div><strong>Double-click run.bat</strong> — browser opens automatically. Log in with your username &amp; PIN.</div></div>
+                </div>
+
+                <!-- Mac -->
+                <div class="sh-panel" id="sh-mac">
+                    <div class="sh-step"><span class="sh-n">1</span><div><strong>Install Node.js</strong> (free, one-time) — <a href="https://nodejs.org" target="_blank" rel="noopener">nodejs.org</a> → click LTS → install with defaults</div></div>
+                    <div class="sh-step"><span class="sh-n">2</span><div><strong>Download Flix Vision</strong> → <a href="download/flix-vision-mac.zip"><strong>flix-vision-mac.zip</strong></a> → extract anywhere</div></div>
+                    <div class="sh-step"><span class="sh-n">3</span><div><strong>Double-click start-mac.command</strong> — if blocked: right-click → Open → Open Anyway</div></div>
+                </div>
+
+                <!-- Linux -->
+                <div class="sh-panel" id="sh-linux">
+                    <div class="sh-step"><span class="sh-n">1</span><div><strong>Install Node.js:</strong> <code style="background:#0a0a0c;padding:2px 7px;border-radius:4px;font-size:0.82rem;color:#86efac">sudo apt install nodejs</code></div></div>
+                    <div class="sh-step"><span class="sh-n">2</span><div><strong>Download Flix Vision</strong> → <a href="download/flix-vision-linux.zip"><strong>flix-vision-linux.zip</strong></a> → extract anywhere</div></div>
+                    <div class="sh-step"><span class="sh-n">3</span><div>In a terminal inside the folder: <code style="background:#0a0a0c;padding:2px 7px;border-radius:4px;font-size:0.82rem;color:#86efac">bash start-linux.sh</code></div></div>
+                </div>
+
+                <!-- Android -->
+                <div class="sh-panel" id="sh-android">
+                    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:14px 16px;font-size:0.85rem;color:#86efac;line-height:1.6;margin-bottom:4px">
+                        <strong>✓ No setup needed on Android.</strong> Open this site in Chrome or Firefox on your phone. The app runs fully in your mobile browser.<br><br>
+                        <span style="color:#a1a1aa">Tip: tap ⋮ → <strong>Add to Home Screen</strong> to get a full-screen app icon.</span>
+                    </div>
+                </div>
+
+                <!-- iOS -->
+                <div class="sh-panel" id="sh-ios">
+                    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:14px 16px;font-size:0.85rem;color:#86efac;line-height:1.6;margin-bottom:4px">
+                        <strong>✓ No setup needed on iPhone/iPad.</strong> Open this site in Safari. The app runs fully in your browser.<br><br>
+                        <span style="color:#a1a1aa">Tip: tap the Share button <strong>↑</strong> → <strong>Add to Home Screen</strong> for a full-screen icon.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding:20px 28px;border-top:1px solid rgba(255,255,255,0.07);margin-top:16px;display:flex;justify-content:flex-end;gap:10px">
+                <button onclick="closeSelfhostModal()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#a1a1aa;padding:9px 20px;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;cursor:pointer">Close</button>
+                <a href="download.html" style="background:linear-gradient(135deg,#e50914,#ff4b2b);color:#fff;padding:9px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:7px"><i class="fa-solid fa-download"></i> Full Setup Guide</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .sh-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#71717a;font-size:0.8rem;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif}
+    .sh-tab:hover{border-color:rgba(229,9,20,0.4);color:#fff}
+    .sh-tab.active{background:rgba(229,9,20,0.1);border-color:rgba(229,9,20,0.45);color:#fff}
+    .sh-panel{display:none;margin-bottom:4px}
+    .sh-panel.active{display:block}
+    .sh-step{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.83rem;color:#a1a1aa;line-height:1.6}
+    .sh-step:last-child{border-bottom:none}
+    .sh-step strong{color:#fff}
+    .sh-step a{color:#ff6b6b;text-decoration:none}
+    .sh-step a:hover{text-decoration:underline}
+    .sh-n{background:linear-gradient(135deg,#e50914,#ff4b2b);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;margin-top:1px}
+    </style>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+    // ── Self-host modal ────────────────────────────────────────────────────
+    // On the hosted Cloudflare version, clicking play shows setup instructions.
+    // On localhost (local install), play works normally with no interception.
+    const IS_LOCAL = ['127.0.0.1','localhost'].includes(location.hostname);
+
+    function showSelfhostModal() {
+        const m = document.getElementById('selfhost-modal');
+        m.style.display = 'flex';
+        // Auto-detect OS and pre-select the right tab
+        const ua = navigator.userAgent.toLowerCase();
+        let os = 'windows';
+        if      (/iphone|ipad|ipod/.test(ua)) os = 'ios';
+        else if (/android/.test(ua))           os = 'android';
+        else if (/mac/.test(ua))               os = 'mac';
+        else if (/linux/.test(ua))             os = 'linux';
+        const btn = document.querySelector(`#sh-tabs [onclick*="'${os}'"]`);
+        switchSH(os, btn);
+    }
+    function closeSelfhostModal() {
+        document.getElementById('selfhost-modal').style.display = 'none';
+    }
+    function switchSH(os, btn) {
+        document.querySelectorAll('.sh-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.sh-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('sh-' + os)?.classList.add('active');
+        if (btn) btn.classList.add('active');
+    }
+
+    // Intercept play buttons on hosted version only
+    if (!IS_LOCAL) {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hero Watch Now
+            const heroPlay = document.getElementById('hero-play');
+            if (heroPlay) {
+                heroPlay.addEventListener('click', e => {
+                    e.stopImmediatePropagation();
+                    showSelfhostModal();
+                }, true);
+            }
+            // Details modal Play button
+            const detailsPlay = document.getElementById('details-play-btn');
+            if (detailsPlay) {
+                detailsPlay.addEventListener('click', e => {
+                    e.stopImmediatePropagation();
+                    showSelfhostModal();
+                }, true);
+            }
+        });
+    }
+
+    // Close on backdrop click
+    document.getElementById('selfhost-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeSelfhostModal();
+    });
+
+    // ── Service worker registration (PWA support) ──────────────────────────
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+    </script>
+</body>
+
+</html>
